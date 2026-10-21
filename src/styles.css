@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+/* tailwind plugins */
+/* @plugin '@tailwindcss/forms'; */
+
+@theme {
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  --color-cobalt: #193549;
+  --color-cb-blue: #193549;
+  --color-cb-yellow: #ffc600;
+  --color-cb-orange: #ff9d00;
+  --color-cb-mint: #2affdf;
+  --color-cb-off-blue: #0d3a58;
+  --color-cb-dusty-blue: #35434d;
+  --color-cb-dark-blue: #15232d;
+  --color-cb-pink: #fb94ff;
+  --color-cb-light-blue: #9effff;
+  --color-cb-white: #cccccc;
+
+  --animate-spin-slow: spin 2s linear infinite;
+}

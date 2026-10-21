@@ -1,0 +1,8 @@
+{
+  "name": "b4",
+  "short_name": "b4",
+  "lang": "en-US",
+  "start_url": "/",
+  "display": "standalone",
+  "scope": "/"
+}
