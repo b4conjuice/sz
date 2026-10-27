@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /* tailwind plugins */
-/* @plugin '@tailwindcss/forms'; */
+@plugin '@tailwindcss/forms';
 
 @theme {
   --font-sans:

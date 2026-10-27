@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@clerk/tanstack-react-start": "^1.4.21",
+    "@headlessui/react": "^2.2.10",
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "0.10.13",
     "@tanstack/react-query": "5.104.5",
@@ -32,6 +34,8 @@
     "@trpc/client": "^11.11.0",
     "@trpc/server": "^11.11.0",
     "@trpc/tanstack-react-query": "^11.11.0",
+    "@uidotdev/usehooks": "^2.4.1",
+    "classnames": "^2.5.1",
     "drizzle-kit": "^0.31.9",
     "drizzle-orm": "^0.45.1",
     "nitro": "3.0.260610-beta",
@@ -43,6 +47,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
     "@tanstack/devtools-vite": "0.8.5",
     "@tanstack/eslint-config": "0.4.0",
     "@tanstack/router-cli": "^1.132.0",

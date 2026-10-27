@@ -31,3 +31,46 @@ export const nav = [
     disabled: true,
   },
 ]
+
+// go to scoreboard for you league `https://fantasy.espn.com/basketball/league/scoreboard?leagueId=xxx` script:
+export const SCOREBOARD_SCRIPT = `
+scoreboard = {
+  categories: Array.from(
+    document
+      .querySelector('.Scoreboard__Column .Table .Table__THEAD tr')
+      .querySelectorAll('th span')
+  ).map(el => {
+    // const [abbreviation, ...stats] = scores[index]
+    const category = el.innerText
+    return category
+  }),
+  matchups: Array.from(document.querySelectorAll('.Scoreboard__Row')).map(
+    el => {
+      const teams = Array.from(
+        el.querySelectorAll(
+          '.ScoreboardScoreCell__Competitors .ScoreCell__TeamName'
+        )
+      ).map(teamEl => {
+        const team = teamEl.innerText
+        return team
+      })
+      const scores = Array.from(
+        el.querySelectorAll('.Scoreboard__Column .Table .Table__TBODY tr')
+      ).map(rowEl => {
+        return Array.from(rowEl.querySelectorAll('td div')).map(scoreEl => {
+          const score = scoreEl.innerText
+          return score
+        })
+      })
+      return teams.map((team, index) => {
+        const [abbreviation, ...stats] = scores[index]
+        return {
+          name: team,
+          abbreviation,
+          stats: stats.map(stat => Number(stat)),
+        }
+      })
+    }
+  ),
+}
+`
