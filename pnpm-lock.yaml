@@ -66,6 +66,9 @@ importers:
       drizzle-orm:
         specifier: ^0.45.1
         version: 0.45.4(@types/pg@8.23.1)(pg@8.23.1)
+      fuse.js:
+        specifier: ^7.5.0
+        version: 7.5.0
       nitro:
         specifier: 3.0.260610-beta
         version: 3.0.260610-beta(dotenv@17.4.2)(drizzle-orm@0.45.4)(vite@8.3.5)
@@ -3722,6 +3725,11 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     optional: true
+
+  /fuse.js@7.5.0:
+    resolution: {integrity: sha512-sQtrEfA+ez/3G0cCZecF70oqpCRttCexYUG4mUrtWL49ULUzUyxokt5kyqwtKzj1270RaKih+hcP3qLcumccow==}
+    engines: {node: '>=10'}
+    dev: false
 
   /gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}

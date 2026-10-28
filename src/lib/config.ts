@@ -74,3 +74,27 @@ scoreboard = {
   ),
 }
 `
+
+// go to projections page for your league: `https://fantasy.espn.com/basketball/players/projections?leagueId=xxx`
+// or draft strategy page (before draft): `https://fantasy.espn.com/basketball/editdraftstrategy?leagueId=XXX`
+export const PLAYERS_SCRIPT = `
+players = Array.from(
+  document.querySelectorAll('.Table--fixed-left > .Table__TBODY > tr')
+).map(el => {
+  const nameEl = el.querySelector('.player-column__athlete')
+  const name = nameEl.title
+  const teamEl = el.querySelector(
+    '.player-column__position .playerinfo__playerteam'
+  )
+  const team = teamEl.innerText
+  const positionEl = el.querySelector(
+    '.player-column__position .playerinfo__playerpos'
+  )
+  const position = positionEl.innerText
+  return {
+    name,
+    team,
+    position: position.split(', '),
+  }
+})
+`
