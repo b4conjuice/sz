@@ -8,6 +8,7 @@ import Modal from '@/components/modal'
 import SearchPlayer from '@/components/search-player'
 import type { Player } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
+import CommandPalette from '@/components/command-palette-with-navigation'
 
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
@@ -137,6 +138,17 @@ function RouteComponent() {
           title={`drop ${playerToBeDeleted.name}?`}
         />
       )}
+      <CommandPalette
+        commands={[
+          {
+            id: 'add-player',
+            title: 'add player',
+            action: () => {
+              setIsAddPlayerModalOpen(true)
+            },
+          },
+        ]}
+      />
     </>
   )
 }
