@@ -143,7 +143,7 @@ function RouteComponent() {
           <button
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
             type='button'
-            onClick={async () => {
+            onClick={() => {
               setIsOverwritePlayersModalOpen(true)
             }}
           >
