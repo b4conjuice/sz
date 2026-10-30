@@ -9,6 +9,7 @@ import SearchPlayer from '@/components/search-player'
 import type { Player } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
 import CommandPalette from '@/components/command-palette-with-navigation'
+import { Depth } from '@/components/team'
 
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
@@ -75,6 +76,8 @@ function RouteComponent() {
     <>
       <main className='flex grow flex-col gap-4 p-4'>
         <h2>{name}</h2>
+        <h2>depth</h2>
+        <Depth team={team} />
         <h2>roster</h2>
         <ul className='divide-cb-dusty-blue divide-y'>
           {players.map((player, playerIndex) => (
