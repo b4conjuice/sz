@@ -2,9 +2,19 @@ import { useLocalStorage } from '@uidotdev/usehooks'
 
 import type { Player } from '@/lib/use-players'
 
+const DEFAULT_DRAFT_TEAMS = 12
+const DEFAULT_DRAFT_PICK = 1
+
+export type Draft = {
+  players: Player[]
+  teams: number
+  pick: number
+}
+
 export type Team = {
   name: string
   players: Player[]
+  draft?: Draft
 }
 
 const defaultTeams: Team[] = []
@@ -61,6 +71,60 @@ export function useTeams() {
       return newTeams
     })
   }
+  const addPlayerToDraft = ({
+    teamIndex,
+    player,
+  }: {
+    teamIndex: number
+    player: Player
+  }) => {
+    setTeams(prev => {
+      const newTeams = [...prev]
+      const team = newTeams[teamIndex]
+      if (team.draft) {
+        team.draft.players.push(player)
+      } else {
+        team.draft = {
+          players: [player],
+          teams: DEFAULT_DRAFT_TEAMS,
+          pick: DEFAULT_DRAFT_PICK,
+        }
+      }
+
+      return newTeams
+    })
+  }
+  const deletePlayerFromDraftByIndex = ({
+    teamIndex,
+    playerIndex,
+  }: {
+    teamIndex: number
+    playerIndex: number
+  }) => {
+    setTeams(prev => {
+      const newTeams = [...prev]
+      const team = newTeams[teamIndex]
+      if (team.draft) {
+        team.draft.players.splice(playerIndex, 1)
+      } else {
+        console.error('team has no draft')
+      }
+      return newTeams
+    })
+  }
+  const overwriteDraft = ({
+    teamIndex,
+    draft,
+  }: {
+    teamIndex: number
+    draft: Draft | undefined
+  }) => {
+    setTeams(prev => {
+      const newTeams = [...prev]
+      newTeams[teamIndex].draft = draft
+      return newTeams
+    })
+  }
   return {
     teams,
     overwriteTeams,
@@ -68,5 +132,8 @@ export function useTeams() {
     deleteTeamByIndex,
     addPlayerToTeam,
     deletePlayerByIndex,
+    addPlayerToDraft,
+    deletePlayerFromDraftByIndex,
+    overwriteDraft,
   }
 }
