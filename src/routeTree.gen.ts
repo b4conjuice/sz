@@ -12,7 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayersRouteImport } from './routes/players'
 import { Route as ScoreboardRouteImport } from './routes/scoreboard'
-import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as TeamsIndexRouteImport } from './routes/teams/index'
+import { Route as TeamsTeamIndexRouteImport } from './routes/teams/$teamIndex'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -30,9 +31,14 @@ const ScoreboardRoute = ScoreboardRouteImport.update({
   path: '/scoreboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TeamsRoute = TeamsRouteImport.update({
-  id: '/teams',
-  path: '/teams',
+const TeamsIndexRoute = TeamsIndexRouteImport.update({
+  id: '/teams/',
+  path: '/teams/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsTeamIndexRoute = TeamsTeamIndexRouteImport.update({
+  id: '/teams/$teamIndex',
+  path: '/teams/$teamIndex',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
@@ -45,14 +51,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/players': typeof PlayersRoute
   '/scoreboard': typeof ScoreboardRoute
-  '/teams': typeof TeamsRoute
+  '/teams/$teamIndex': typeof TeamsTeamIndexRoute
+  '/teams/': typeof TeamsIndexRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/players': typeof PlayersRoute
   '/scoreboard': typeof ScoreboardRoute
-  '/teams': typeof TeamsRoute
+  '/teams/$teamIndex': typeof TeamsTeamIndexRoute
+  '/teams': typeof TeamsIndexRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesById {
@@ -60,22 +68,43 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/players': typeof PlayersRoute
   '/scoreboard': typeof ScoreboardRoute
-  '/teams': typeof TeamsRoute
+  '/teams/$teamIndex': typeof TeamsTeamIndexRoute
+  '/teams/': typeof TeamsIndexRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/players' | '/scoreboard' | '/teams' | '/api/trpc/$'
+  fullPaths:
+    | '/'
+    | '/players'
+    | '/scoreboard'
+    | '/teams/$teamIndex'
+    | '/teams/'
+    | '/api/trpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/players' | '/scoreboard' | '/teams' | '/api/trpc/$'
-  id: '__root__' | '/' | '/players' | '/scoreboard' | '/teams' | '/api/trpc/$'
+  to:
+    | '/'
+    | '/players'
+    | '/scoreboard'
+    | '/teams/$teamIndex'
+    | '/teams'
+    | '/api/trpc/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/players'
+    | '/scoreboard'
+    | '/teams/$teamIndex'
+    | '/teams/'
+    | '/api/trpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PlayersRoute: typeof PlayersRoute
   ScoreboardRoute: typeof ScoreboardRoute
-  TeamsRoute: typeof TeamsRoute
+  TeamsTeamIndexRoute: typeof TeamsTeamIndexRoute
+  TeamsIndexRoute: typeof TeamsIndexRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
@@ -102,11 +131,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScoreboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/teams': {
-      id: '/teams'
+    '/teams/': {
+      id: '/teams/'
       path: '/teams'
-      fullPath: '/teams'
-      preLoaderRoute: typeof TeamsRouteImport
+      fullPath: '/teams/'
+      preLoaderRoute: typeof TeamsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams/$teamIndex': {
+      id: '/teams/$teamIndex'
+      path: '/teams/$teamIndex'
+      fullPath: '/teams/$teamIndex'
+      preLoaderRoute: typeof TeamsTeamIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/trpc/$': {
@@ -123,7 +159,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PlayersRoute: PlayersRoute,
   ScoreboardRoute: ScoreboardRoute,
-  TeamsRoute: TeamsRoute,
+  TeamsTeamIndexRoute: TeamsTeamIndexRoute,
+  TeamsIndexRoute: TeamsIndexRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
 export const routeTree = rootRouteImport
