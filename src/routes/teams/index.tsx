@@ -6,6 +6,7 @@ import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import { useTeams } from '@/lib/use-teams'
 import ConfirmModal from '@/components/confirm-modal'
+import CommandPalette from '@/components/command-palette-with-navigation'
 
 export const Route = createFileRoute('/teams/')({
   component: RouteComponent,
@@ -118,6 +119,17 @@ function RouteComponent() {
           title={`delete ${teamToBeDeleted.name}?`}
         />
       )}
+      <CommandPalette
+        commands={[
+          {
+            id: 'add-team',
+            title: 'add team',
+            action: () => {
+              setIsAddTeamModalOpen(true)
+            },
+          },
+        ]}
+      />
     </>
   )
 }
