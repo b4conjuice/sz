@@ -13,6 +13,7 @@ import useSearch from '@/lib/use-search'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { PLAYERS_SCRIPT } from '@/lib/config'
+import CommandPalette from '@/components/command-palette-with-navigation'
 
 export const Route = createFileRoute('/players')({
   component: RouteComponent,
@@ -195,6 +196,7 @@ function RouteComponent() {
           </button>
         </div>
       </Modal>
+      <CommandPalette commands={[]} />
     </>
   )
 }
