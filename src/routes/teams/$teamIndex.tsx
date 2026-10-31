@@ -9,7 +9,7 @@ import SearchPlayer from '@/components/search-player'
 import type { Player } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
 import CommandPalette from '@/components/command-palette-with-navigation'
-import { Depth } from '@/components/team'
+import { Depth, Draft } from '@/components/team'
 
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
@@ -150,25 +150,7 @@ function RouteComponent() {
             </button>
           </div>
         </div>
-        <ul className='divide-cb-dusty-blue divide-y'>
-          {draft?.players.map((player, playerIndex) => (
-            <li key={playerIndex} className='flex py-4 first:pt-0'>
-              <span className='flex grow gap-2'>
-                <span>{player.name}</span>
-                <span>{player.position.join(', ')}</span>
-              </span>
-              <button
-                className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
-                onClick={() => {
-                  // TODO
-                }}
-                disabled
-              >
-                <TrashIcon className='h-6 w-6' />
-              </button>
-            </li>
-          ))}
-        </ul>
+        {draft && <Draft draft={draft} />}
       </main>
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
@@ -294,6 +276,13 @@ function RouteComponent() {
             title: 'add player',
             action: () => {
               setIsAddPlayerModalOpen(true)
+            },
+          },
+          {
+            id: 'draft-player',
+            title: 'draft player',
+            action: () => {
+              setIsDraftPlayerModalOpen(true)
             },
           },
         ]}
