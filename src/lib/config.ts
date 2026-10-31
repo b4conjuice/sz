@@ -30,6 +30,10 @@ export const nav = [
     text: 'draft',
     disabled: true,
   },
+  {
+    href: '/settings',
+    text: 'settings',
+  },
 ]
 
 // go to scoreboard for you league `https://fantasy.espn.com/basketball/league/scoreboard?leagueId=xxx` script:
