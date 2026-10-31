@@ -9,6 +9,7 @@ export type Draft = {
   players: Player[]
   teams: number
   pick: number
+  complete: boolean
 }
 
 export type Team = {
@@ -88,6 +89,7 @@ export function useTeams() {
           players: [player],
           teams: DEFAULT_DRAFT_TEAMS,
           pick: DEFAULT_DRAFT_PICK,
+          complete: false,
         }
       }
 
@@ -106,6 +108,21 @@ export function useTeams() {
       const team = newTeams[teamIndex]
       if (team.draft) {
         team.draft.players.splice(playerIndex, 1)
+      } else {
+        console.error('team has no draft')
+      }
+      return newTeams
+    })
+  }
+  const toggleCompleteDraft = (teamIndex: number) => {
+    setTeams(prev => {
+      const newTeams = [...prev]
+      const team = newTeams[teamIndex]
+      if (team.draft) {
+        team.draft.complete = !team.draft.complete
+        if (team.draft.complete) {
+          team.players = [...team.draft.players]
+        }
       } else {
         console.error('team has no draft')
       }
@@ -134,6 +151,7 @@ export function useTeams() {
     deletePlayerByIndex,
     addPlayerToDraft,
     deletePlayerFromDraftByIndex,
+    toggleCompleteDraft,
     overwriteDraft,
   }
 }

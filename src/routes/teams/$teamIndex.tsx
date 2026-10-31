@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { Cog6ToothIcon, PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
+import {
+  Cog6ToothIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@heroicons/react/20/solid'
 
 import ConfirmModal from '@/components/confirm-modal'
 import Menu from '@/components/menu'
@@ -72,6 +78,7 @@ function RouteComponent() {
     deletePlayerByIndex,
     addPlayerToDraft,
     deletePlayerFromDraftByIndex,
+    toggleCompleteDraft,
     overwriteDraft,
   } = useTeams()
   const team = teams[teamIndex]
@@ -126,16 +133,29 @@ function RouteComponent() {
               onClick={() => {
                 setIsConfirmClearDraftModalOpen(true)
               }}
-              disabled={!draft}
+              disabled={!draft || draft.complete}
             >
               <TrashIcon className='h-6 w-6' />
             </button>
             <button
               className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
               onClick={() => {
-                setIsDraftSettingsModalOpen(true)
+                toggleCompleteDraft(teamIndex)
               }}
               disabled={!draft}
+            >
+              {draft?.complete ? (
+                <LockClosedIcon className='h-6 w-6' />
+              ) : (
+                <LockOpenIcon className='h-6 w-6' />
+              )}
+            </button>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+              onClick={() => {
+                setIsDraftSettingsModalOpen(true)
+              }}
+              disabled={!draft || draft.complete}
             >
               <Cog6ToothIcon className='h-6 w-6' />
             </button>
@@ -145,6 +165,7 @@ function RouteComponent() {
               onClick={() => {
                 setIsDraftPlayerModalOpen(true)
               }}
+              disabled={draft?.complete}
             >
               <PlusIcon className='h-6 w-6' />
             </button>
