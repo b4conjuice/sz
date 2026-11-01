@@ -7,9 +7,13 @@ import Modal from '@/components/modal'
 import { useTeams } from '@/lib/use-teams'
 import ConfirmModal from '@/components/confirm-modal'
 import CommandPalette from '@/components/command-palette-with-navigation'
+import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/teams/')({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: `teams - ${DEFAULT_TITLE}` }],
+  }),
 })
 
 function RouteComponent() {

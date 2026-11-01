@@ -7,9 +7,13 @@ import Scoreboard from '@/components/scoreboard'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import { SCOREBOARD_SCRIPT } from '@/lib/config'
+import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/scoreboard')({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: `scoreboard - ${DEFAULT_TITLE}` }],
+  }),
 })
 
 type Team = {

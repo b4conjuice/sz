@@ -16,9 +16,14 @@ import type { Player } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
 import CommandPalette from '@/components/command-palette-with-navigation'
 import { Depth, Draft } from '@/components/team'
+import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
+  head: () => ({
+    // TODO: set title as team name
+    meta: [{ title: `teams - ${DEFAULT_TITLE}` }],
+  }),
 })
 
 function AddPlayer({

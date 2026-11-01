@@ -14,11 +14,12 @@ import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { PLAYERS_SCRIPT } from '@/lib/config'
 import CommandPalette from '@/components/command-palette-with-navigation'
+import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/players')({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: 'players' }],
+    meta: [{ title: `players - ${DEFAULT_TITLE}` }],
   }),
   validateSearch: (search: Record<string, string>) => {
     return {

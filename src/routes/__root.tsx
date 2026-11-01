@@ -14,7 +14,7 @@ interface MyRouterContext {
   trpc: TRPCOptionsProxy<TRPCRouter>
 }
 
-const DEFAULT_TITLE = 'sz'
+export const DEFAULT_TITLE = 'sz'
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({

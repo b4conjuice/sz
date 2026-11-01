@@ -5,8 +5,14 @@ import { useCopyToClipboard } from '@uidotdev/usehooks'
 import Menu from '@/components/menu'
 import { useTeams } from '@/lib/use-teams'
 import { usePlayers } from '@/lib/use-players'
+import { DEFAULT_TITLE } from '@/routes/__root'
 
-export const Route = createFileRoute('/settings')({ component: RouteComponent })
+export const Route = createFileRoute('/settings')({
+  component: RouteComponent,
+  head: () => ({
+    meta: [{ title: `settings - ${DEFAULT_TITLE}` }],
+  }),
+})
 
 function RouteComponent() {
   const [copiedText, copyToClipboard] = useCopyToClipboard()
