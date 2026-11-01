@@ -36,7 +36,7 @@ export const nav = [
   },
 ]
 
-// go to scoreboard for you league `https://fantasy.espn.com/basketball/league/scoreboard?leagueId=xxx` script:
+// go to scoreboard page for your league `https://fantasy.espn.com/basketball/league/scoreboard?leagueId=xxx`
 export const SCOREBOARD_SCRIPT = `
 scoreboard = {
   categories: Array.from(
