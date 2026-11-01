@@ -48,6 +48,7 @@ export default function Modal({
               type='button'
               onClick={() => setIsOpen(false)}
               className='absolute top-4 right-4'
+              tabIndex={-1}
             >
               <XMarkIcon className='text-cb-yellow h-6 w-6' />
             </button>
