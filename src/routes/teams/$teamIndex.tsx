@@ -13,16 +13,27 @@ import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import SearchPlayer from '@/components/search-player'
 import type { Player } from '@/lib/use-players'
-import { useTeams } from '@/lib/use-teams'
+import { getTeams, useTeams } from '@/lib/use-teams'
 import CommandPalette from '@/components/command-palette-with-navigation'
 import { Depth, Draft } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
-  head: () => ({
-    // TODO: set title as team name
-    meta: [{ title: `teams - ${DEFAULT_TITLE}` }],
+  ssr: false,
+  loader: ({ params }) => {
+    const teams = getTeams()
+    const team = teams[Number(params.teamIndex)]
+    return { team }
+  },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: loaderData?.team
+          ? `${loaderData.team.name} - ${DEFAULT_TITLE}`
+          : `teams - ${DEFAULT_TITLE}`,
+      },
+    ],
   }),
 })
 

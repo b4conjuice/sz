@@ -20,8 +20,28 @@ export type Team = {
 
 const defaultTeams: Team[] = []
 
+const TEAMS_LOCAL_STORAGE_KEY = 'sz-teams'
+
+export function getTeams(): Team[] {
+  if (typeof window === 'undefined') {
+    return defaultTeams
+  }
+  const stored = window.localStorage.getItem(TEAMS_LOCAL_STORAGE_KEY)
+  if (!stored) {
+    return defaultTeams
+  }
+  try {
+    return JSON.parse(stored) as Team[]
+  } catch {
+    return defaultTeams
+  }
+}
+
 export function useTeams() {
-  const [teams, setTeams] = useLocalStorage<Team[]>('sz-teams', defaultTeams)
+  const [teams, setTeams] = useLocalStorage<Team[]>(
+    TEAMS_LOCAL_STORAGE_KEY,
+    defaultTeams
+  )
   const overwriteTeams = (newTeams: Team[]) => {
     setTeams(newTeams)
   }
