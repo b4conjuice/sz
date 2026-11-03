@@ -67,19 +67,22 @@ function RouteComponent() {
     'sz-players-selected-positions',
     []
   )
-  const allTags = [
-    ...new Set(
-      players.reduce((currentAllTags: string[], player: Player) => {
-        const { position } = player
-        const playerTags = [...position]
-        return [...currentAllTags, ...playerTags]
-      }, selectedTags)
-    ),
+  const positions = [
+    ...players.reduce((currentAllTags: string[], player: Player) => {
+      const { position } = player
+      const playerTags = [...position]
+      return [...currentAllTags, ...playerTags]
+    }, selectedTags),
   ]
+  const allTags = [...new Set([...positions, 'no-position'])]
 
   const taggedPlayers = results.filter(player =>
     selectedTags.length > 0
-      ? selectedTags.every(tag => player.position.includes(tag))
+      ? selectedTags.every(tag =>
+          tag === 'no-position'
+            ? player.position.length === 0
+            : player.position.includes(tag)
+        )
       : true
   )
   return (
@@ -97,11 +100,10 @@ function RouteComponent() {
           />
         </div>
         {allTags.length > 0 && (
-          <ul className='flex space-x-2 overflow-x-auto'>
-            {allTags.map((tag, index) => (
+          <ul className='flex gap-2 overflow-x-auto'>
+            {allTags.map(tag => (
               <li key={tag}>
                 <button
-                  // ref={index === 0 ? firstTagButtonRef : undefined}
                   className={classNames(
                     'bg-cb-blue rounded-lg border p-2',
                     selectedTags.includes(tag)
