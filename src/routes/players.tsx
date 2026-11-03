@@ -3,6 +3,7 @@ import { createFileRoute, getRouteApi } from '@tanstack/react-router'
 import {
   ArrowDownOnSquareIcon,
   CodeBracketIcon,
+  PlusIcon,
 } from '@heroicons/react/20/solid'
 import classNames from 'classnames'
 import { useCopyToClipboard, useLocalStorage } from '@uidotdev/usehooks'
@@ -37,10 +38,16 @@ function RouteComponent() {
   const navigate = routeApi.useNavigate()
   const [isOverwritePlayersModalOpen, setIsOverwritePlayersModalOpen] =
     useState(false)
-  const { players, overwritePlayers } = usePlayers()
+  const { players, overwritePlayers, savePlayer } = usePlayers()
   const [newPlayersAsString, setNewPlayersAsString] = useState(
     JSON.stringify(players)
   )
+  const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
+  const [newPlayer, setNewPlayer] = useState<Player>({
+    name: '',
+    team: '',
+    position: [],
+  })
 
   const { search, setSearch, results } = useSearch({
     initialSearch: query,
@@ -150,8 +157,66 @@ function RouteComponent() {
           >
             <CodeBracketIcon className='h-6 w-6' />
           </button>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              setIsAddPlayerModalOpen(true)
+            }}
+          >
+            <PlusIcon className='h-6 w-6' />
+          </button>
         </div>
       </footer>
+      <Modal
+        title='add player'
+        isOpen={isAddPlayerModalOpen}
+        setIsOpen={setIsAddPlayerModalOpen}
+      >
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='name'
+          value={newPlayer.name}
+          onChange={e => {
+            setNewPlayer(prev => ({
+              ...prev,
+              name: e.target.value,
+            }))
+          }}
+        />
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='team'
+          value={newPlayer.team}
+          onChange={e => {
+            setNewPlayer(prev => ({
+              ...prev,
+              team: e.target.value,
+            }))
+          }}
+        />
+        <div className='flex items-center gap-4'>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              savePlayer({
+                player: newPlayer,
+              })
+              setIsAddPlayerModalOpen(false)
+            }}
+            disabled={
+              newPlayer.name === '' || newPlayer.team === ''
+              // ||
+              // newPlayer.position.length === 0
+            }
+          >
+            save
+          </button>
+        </div>
+      </Modal>
       <Modal
         title='overwrite players'
         isOpen={isOverwritePlayersModalOpen}
