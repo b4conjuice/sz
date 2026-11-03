@@ -17,7 +17,7 @@ import { PLAYERS_SCRIPT } from '@/lib/config'
 import CommandPalette from '@/components/command-palette-with-navigation'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
-export const Route = createFileRoute('/players')({
+export const Route = createFileRoute('/players/')({
   component: RouteComponent,
   head: () => ({
     meta: [{ title: `players - ${DEFAULT_TITLE}` }],
@@ -29,7 +29,7 @@ export const Route = createFileRoute('/players')({
   },
 })
 
-const routeApi = getRouteApi('/players')
+const routeApi = getRouteApi('/players/')
 
 function RouteComponent() {
   const [copiedText, copyToClipboard] = useCopyToClipboard()

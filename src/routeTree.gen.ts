@@ -10,9 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PlayersRouteImport } from './routes/players'
 import { Route as ScoreboardRouteImport } from './routes/scoreboard'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PlayersIndexRouteImport } from './routes/players/index'
 import { Route as TeamsIndexRouteImport } from './routes/teams/index'
 import { Route as TeamsTeamIndexRouteImport } from './routes/teams/$teamIndex'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
@@ -20,11 +20,6 @@ import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlayersRoute = PlayersRouteImport.update({
-  id: '/players',
-  path: '/players',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScoreboardRoute = ScoreboardRouteImport.update({
@@ -35,6 +30,11 @@ const ScoreboardRoute = ScoreboardRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayersIndexRoute = PlayersIndexRouteImport.update({
+  id: '/players/',
+  path: '/players/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamsIndexRoute = TeamsIndexRouteImport.update({
@@ -55,29 +55,29 @@ const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/players': typeof PlayersRoute
   '/scoreboard': typeof ScoreboardRoute
   '/settings': typeof SettingsRoute
   '/teams/$teamIndex': typeof TeamsTeamIndexRoute
+  '/players/': typeof PlayersIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/players': typeof PlayersRoute
   '/scoreboard': typeof ScoreboardRoute
   '/settings': typeof SettingsRoute
   '/teams/$teamIndex': typeof TeamsTeamIndexRoute
+  '/players': typeof PlayersIndexRoute
   '/teams': typeof TeamsIndexRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/players': typeof PlayersRoute
   '/scoreboard': typeof ScoreboardRoute
   '/settings': typeof SettingsRoute
   '/teams/$teamIndex': typeof TeamsTeamIndexRoute
+  '/players/': typeof PlayersIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
@@ -85,38 +85,38 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/players'
     | '/scoreboard'
     | '/settings'
     | '/teams/$teamIndex'
+    | '/players/'
     | '/teams/'
     | '/api/trpc/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/players'
     | '/scoreboard'
     | '/settings'
     | '/teams/$teamIndex'
+    | '/players'
     | '/teams'
     | '/api/trpc/$'
   id:
     | '__root__'
     | '/'
-    | '/players'
     | '/scoreboard'
     | '/settings'
     | '/teams/$teamIndex'
+    | '/players/'
     | '/teams/'
     | '/api/trpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PlayersRoute: typeof PlayersRoute
   ScoreboardRoute: typeof ScoreboardRoute
   SettingsRoute: typeof SettingsRoute
   TeamsTeamIndexRoute: typeof TeamsTeamIndexRoute
+  PlayersIndexRoute: typeof PlayersIndexRoute
   TeamsIndexRoute: typeof TeamsIndexRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
@@ -128,13 +128,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/players': {
-      id: '/players'
-      path: '/players'
-      fullPath: '/players'
-      preLoaderRoute: typeof PlayersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scoreboard': {
@@ -149,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/players/': {
+      id: '/players/'
+      path: '/players'
+      fullPath: '/players/'
+      preLoaderRoute: typeof PlayersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/teams/': {
@@ -177,10 +177,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PlayersRoute: PlayersRoute,
   ScoreboardRoute: ScoreboardRoute,
   SettingsRoute: SettingsRoute,
   TeamsTeamIndexRoute: TeamsTeamIndexRoute,
+  PlayersIndexRoute: PlayersIndexRoute,
   TeamsIndexRoute: TeamsIndexRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
