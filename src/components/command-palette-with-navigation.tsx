@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 
 import DefaultCommandPalette from '@/components/command-palette'
 import type { Command } from '@/components/command-palette'
@@ -15,9 +15,15 @@ function getRoutes(route: typeof routeTree): string[] {
   ]
 }
 
-export default function CommandPalette({ commands }: { commands: Command[] }) {
+export default function NavigateCommandPalette({
+  commands,
+}: {
+  commands?: Command[]
+}) {
   const navigate = useNavigate()
+  const router = useRouter()
   const routes = getRoutes(routeTree)
+  // TODO: exclude command to navigate route of current page
   const navigateRoutesCommands = routes.map(route => ({
     id: `go-${route === '/' ? 'home' : route}`,
     title: `go ${route === '/' ? 'home' : route.replaceAll('/', '')}`,
@@ -27,7 +33,22 @@ export default function CommandPalette({ commands }: { commands: Command[] }) {
       })
     },
   }))
-  const defaultCommands = [...navigateRoutesCommands]
+  const defaultCommands = [
+    ...navigateRoutesCommands,
+    {
+      id: 'go-back',
+      title: 'go back',
+      action: () => {
+        router.history.back()
+      },
+    },
+  ]
 
-  return <DefaultCommandPalette commands={[...commands, ...defaultCommands]} />
+  return (
+    <DefaultCommandPalette
+      toggleIsOpenHotKey='N'
+      placeholder='navigate to'
+      commands={[...(commands ?? []), ...defaultCommands]}
+    />
+  )
 }
