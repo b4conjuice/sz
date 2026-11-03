@@ -12,9 +12,11 @@ import ConfirmModal from '@/components/confirm-modal'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import SearchPlayer from '@/components/search-player'
+import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { getTeams, useTeams } from '@/lib/use-teams'
 import CommandPalette from '@/components/command-palette-with-navigation'
+import CoreCommandPalette from '@/components/command-palette'
 import { Depth, Draft } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
@@ -97,6 +99,7 @@ function RouteComponent() {
     toggleCompleteDraft,
     overwriteDraft,
   } = useTeams()
+  const { players: playerList } = usePlayers()
   const team = teams[teamIndex]
   if (!team) {
     return <p>team does not exist</p>
@@ -322,6 +325,48 @@ function RouteComponent() {
               setIsDraftPlayerModalOpen(true)
             },
           },
+        ]}
+      />
+      <CoreCommandPalette
+        toggleIsOpenHotKey={'A'}
+        placeholder='add player'
+        commands={[
+          ...playerList.map((player, index) => ({
+            id: `add-player-${index}`,
+            title: `add ${player.name} - ${player.position.join(', ')}`,
+            action: () => {
+              addPlayer(player)
+            },
+          })),
+        ]}
+      />
+      <CoreCommandPalette
+        toggleIsOpenHotKey={'R'}
+        placeholder='drop player'
+        commands={[
+          ...players.map((player, index) => ({
+            id: `drop-player-${index}`,
+            title: `draft ${player.name} - ${player.position.join(', ')}`,
+            action: () => {
+              deletePlayerByIndex({
+                teamIndex,
+                playerIndex: index,
+              })
+            },
+          })),
+        ]}
+      />
+      <CoreCommandPalette
+        toggleIsOpenHotKey={'D'}
+        placeholder='draft player'
+        commands={[
+          ...playerList.map((player, index) => ({
+            id: `draft-player-${index}`,
+            title: `draft ${player.name} - ${player.position.join(', ')}`,
+            action: () => {
+              draftPlayer(player)
+            },
+          })),
         ]}
       />
     </>
