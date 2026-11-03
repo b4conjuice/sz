@@ -133,7 +133,8 @@ function RouteComponent() {
           <p>no results found</p>
         )}
         <ul className='divide-cb-dusty-blue divide-y'>
-          {taggedPlayers.map((player, index) => {
+          {taggedPlayers.map(player => {
+            const index = players.indexOf(player)
             const rank = index + 1
             return (
               <li key={index} className='flex gap-2 py-4 first:pt-0'>
