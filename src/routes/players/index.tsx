@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createFileRoute, getRouteApi } from '@tanstack/react-router'
+import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router'
 import {
   ArrowDownOnSquareIcon,
   CodeBracketIcon,
@@ -137,9 +137,18 @@ function RouteComponent() {
             const rank = index + 1
             return (
               <li key={index} className='flex gap-2 py-4 first:pt-0'>
-                <span>{rank}</span>
-                <span>{player.name}</span>
-                <span>{player.position.join(', ')}</span>
+                <Link
+                  to='/players/$playerIndex'
+                  params={{
+                    playerIndex: String(index),
+                  }}
+                  className='text-cb-pink hover:text-cb-pink/75 flex grow items-baseline gap-2'
+                >
+                  <span>{rank}</span>
+                  <span>{player.name}</span>
+                  <span>{player.position.join(', ')}</span>
+                  <span className='text-sm'>{player.team}</span>
+                </Link>
               </li>
             )
           })}
