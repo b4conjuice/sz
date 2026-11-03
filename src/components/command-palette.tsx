@@ -16,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline'
 import Fuse from 'fuse.js'
 import { useHotkeys } from '@tanstack/react-hotkeys'
+import type { RegisterableHotkey } from '@tanstack/react-hotkeys'
 
 export type Command = {
   id: string
@@ -30,12 +31,14 @@ export default function CommandPalette({
   isOpen: externalIsOpen,
   setIsOpen: externalSetIsOpen,
   showLaunchButton,
+  toggleIsOpenHotKey,
 }: {
   commands: Command[]
   placeholder?: string
   isOpen?: boolean
   setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
   showLaunchButton?: boolean
+  toggleIsOpenHotKey?: RegisterableHotkey | RegisterableHotkey[]
 }) {
   const [internalIsOpen, internalSetIsOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -44,15 +47,21 @@ export default function CommandPalette({
   const toggleIsOpen = () => {
     setIsOpen(!isOpen)
   }
+  const defaultToggleIsOpenHotkeys: RegisterableHotkey[] = [
+    'Mod+K',
+    'Control+K',
+  ]
+  const hotkeys =
+    toggleIsOpenHotKey === undefined
+      ? defaultToggleIsOpenHotkeys
+      : Array.isArray(toggleIsOpenHotKey)
+        ? toggleIsOpenHotKey
+        : [toggleIsOpenHotKey]
   useHotkeys([
-    {
-      hotkey: 'Mod+K',
+    ...hotkeys.map(hotkey => ({
+      hotkey,
       callback: toggleIsOpen,
-    },
-    {
-      hotkey: 'Control+K',
-      callback: toggleIsOpen,
-    },
+    })),
   ])
 
   const fuse = new Fuse(commands, {
