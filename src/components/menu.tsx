@@ -7,7 +7,7 @@ import {
   MenuItems,
 } from '@headlessui/react'
 
-import NavigateCommandPalette from '@/components/command-palette-with-navigation'
+import NavigateCommandPalette from '@/components/navigate-command-palette'
 import type { Command } from '@/components/command-palette'
 import { nav } from '@/lib/config'
 
