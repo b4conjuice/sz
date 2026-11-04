@@ -1,4 +1,4 @@
-import { useNavigate, useRouter } from '@tanstack/react-router'
+import { useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 
 import DefaultCommandPalette from '@/components/command-palette'
 import type { Command } from '@/components/command-palette'
@@ -20,19 +20,22 @@ export default function NavigateCommandPalette({
 }: {
   commands?: Command[]
 }) {
+  const location = useLocation()
+  const currentPath = location.pathname
   const navigate = useNavigate()
   const router = useRouter()
   const routes = getRoutes(routeTree)
-  // TODO: exclude command to navigate route of current page
-  const navigateRoutesCommands = routes.map(route => ({
-    id: `go-${route === '/' ? 'home' : route}`,
-    title: `go ${route === '/' ? 'home' : route.replaceAll('/', '')}`,
-    action: () => {
-      navigate({
-        to: route,
-      })
-    },
-  }))
+  const navigateRoutesCommands = routes
+    .filter(route => route !== currentPath)
+    .map(route => ({
+      id: `go-${route === '/' ? 'home' : route}`,
+      title: `go ${route === '/' ? 'home' : route.replaceAll('/', '')}`,
+      action: () => {
+        navigate({
+          to: route,
+        })
+      },
+    }))
   const defaultCommands = [
     ...navigateRoutesCommands,
     {
