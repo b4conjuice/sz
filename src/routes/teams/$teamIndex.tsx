@@ -15,7 +15,6 @@ import SearchPlayer from '@/components/search-player'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { getTeams, useTeams } from '@/lib/use-teams'
-import CommandPalette from '@/components/command-palette-with-navigation'
 import CoreCommandPalette from '@/components/command-palette'
 import { Depth, Draft } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
@@ -307,25 +306,6 @@ function RouteComponent() {
           overwriteDraft({ teamIndex, draft: undefined })
         }}
         title='clear draft?'
-      />
-
-      <CommandPalette
-        commands={[
-          {
-            id: 'add-player',
-            title: 'add player',
-            action: () => {
-              setIsAddPlayerModalOpen(true)
-            },
-          },
-          {
-            id: 'draft-player',
-            title: 'draft player',
-            action: () => {
-              setIsDraftPlayerModalOpen(true)
-            },
-          },
-        ]}
       />
       <CoreCommandPalette
         toggleIsOpenHotKey={'A'}
