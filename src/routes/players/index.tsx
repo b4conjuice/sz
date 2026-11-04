@@ -14,7 +14,6 @@ import useSearch from '@/lib/use-search'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { PLAYERS_SCRIPT } from '@/lib/config'
-import CommandPalette from '@/components/command-palette-with-navigation'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/players/')({
@@ -157,7 +156,20 @@ function RouteComponent() {
       </main>
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
-          <Menu />
+          <Menu
+            navigationCommands={players.map((player, index) => ({
+              id: `go-${player.name}`,
+              title: `go ${player.name}`,
+              action: () => {
+                navigate({
+                  to: '/players/$playerIndex',
+                  params: {
+                    playerIndex: String(index),
+                  },
+                })
+              },
+            }))}
+          />
         </div>
         <div className='flex space-x-6'>
           <button
@@ -274,7 +286,6 @@ function RouteComponent() {
           </button>
         </div>
       </Modal>
-      <CommandPalette commands={[]} />
     </>
   )
 }
