@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import classNames from 'classnames'
 
 import Menu from '@/components/menu'
@@ -31,6 +31,7 @@ function listsAreEqual(list1: string[], list2: string[]): boolean {
 }
 
 function RouteComponent() {
+  const navigate = useNavigate()
   const { playerIndex: playerIndexParam } = Route.useParams()
   const playerIndex = Number(playerIndexParam)
   const { players, savePlayer } = usePlayers()
@@ -157,7 +158,20 @@ function RouteComponent() {
       </main>
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
-          <Menu />
+          <Menu
+            navigationCommands={teamsWithPlayer.map(t => ({
+              id: `go-${t.name}`,
+              title: `go ${t.name}`,
+              action: () => {
+                navigate({
+                  to: '/teams/$teamIndex',
+                  params: {
+                    teamIndex: String(teams.indexOf(t)),
+                  },
+                })
+              },
+            }))}
+          />
         </div>
         <div className='flex space-x-6'>
           <button
