@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Cog6ToothIcon,
   LockClosedIcon,
@@ -80,6 +80,7 @@ function AddPlayer({
 }
 
 function RouteComponent() {
+  const navigate = useNavigate()
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
   const [isDraftPlayerModalOpen, setIsDraftPlayerModalOpen] = useState(false)
   const [isDraftSettingsModalOpen, setIsDraftSettingsModalOpen] =
@@ -193,7 +194,22 @@ function RouteComponent() {
       </main>
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
-          <Menu />
+          <Menu
+            navigationCommands={players.map(player => ({
+              id: `go-${player.name}`,
+              title: `go ${player.name}`,
+              action: () => {
+                navigate({
+                  to: '/players/$playerIndex',
+                  params: {
+                    playerIndex: String(
+                      playerList.findIndex(p => p.name === player.name)
+                    ),
+                  },
+                })
+              },
+            }))}
+          />
         </div>
         <div className='flex space-x-6'>
           <button
