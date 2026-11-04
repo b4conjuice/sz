@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
 
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import { useTeams } from '@/lib/use-teams'
 import ConfirmModal from '@/components/confirm-modal'
-import CommandPalette from '@/components/command-palette-with-navigation'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/teams/')({
@@ -17,6 +16,7 @@ export const Route = createFileRoute('/teams/')({
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false)
   const { teams, saveTeam, deleteTeamByIndex } = useTeams()
@@ -63,7 +63,20 @@ function RouteComponent() {
       </main>
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
-          <Menu />
+          <Menu
+            navigationCommands={teams.map((team, index) => ({
+              id: `go-${team.name}`,
+              title: `go ${team.name}`,
+              action: () => {
+                navigate({
+                  to: '/teams/$teamIndex',
+                  params: {
+                    teamIndex: String(index),
+                  },
+                })
+              },
+            }))}
+          />
         </div>
         <div className='flex space-x-6'>
           <button
@@ -123,7 +136,7 @@ function RouteComponent() {
           title={`delete ${teamToBeDeleted.name}?`}
         />
       )}
-      <CommandPalette
+      {/* <CommandPalette
         commands={[
           {
             id: 'add-team',
@@ -133,7 +146,7 @@ function RouteComponent() {
             },
           },
         ]}
-      />
+      /> */}
     </>
   )
 }
