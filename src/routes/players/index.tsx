@@ -62,7 +62,7 @@ function RouteComponent() {
     })
   }, [search, navigate])
 
-  const [selectedTags, setSelectedTags] = useLocalStorage<string[]>(
+  const [selectedPositions, setSelectedPositions] = useLocalStorage<string[]>(
     'sz-players-selected-positions',
     []
   )
@@ -71,13 +71,13 @@ function RouteComponent() {
       const { position } = player
       const playerTags = [...position]
       return [...currentAllTags, ...playerTags]
-    }, selectedTags),
+    }, selectedPositions),
   ]
   const allTags = [...new Set([...positions, 'no-position'])]
 
   const taggedPlayers = results.filter(player =>
-    selectedTags.length > 0
-      ? selectedTags.every(tag =>
+    selectedPositions.length > 0
+      ? selectedPositions.every(tag =>
           tag === 'no-position'
             ? player.position.length === 0
             : player.position.includes(tag)
@@ -105,21 +105,21 @@ function RouteComponent() {
                 <button
                   className={classNames(
                     'bg-cb-blue rounded-lg border p-2',
-                    selectedTags.includes(tag)
+                    selectedPositions.includes(tag)
                       ? 'border-cb-pink'
                       : 'border-cb-blue'
                   )}
                   onClick={() => {
-                    const selectedTagIndex = selectedTags.findIndex(
+                    const selectedTagIndex = selectedPositions.findIndex(
                       t => t === tag
                     )
-                    const newSelectedTags = [...selectedTags]
+                    const newSelectedTags = [...selectedPositions]
                     if (selectedTagIndex > -1) {
                       newSelectedTags.splice(selectedTagIndex, 1)
                     } else {
                       newSelectedTags.push(tag)
                     }
-                    setSelectedTags(newSelectedTags)
+                    setSelectedPositions(newSelectedTags)
                   }}
                 >
                   {tag}
@@ -128,9 +128,8 @@ function RouteComponent() {
             ))}
           </ul>
         )}
-        {taggedPlayers.length === 0 && (search || selectedTags.length > 0) && (
-          <p>no results found</p>
-        )}
+        {taggedPlayers.length === 0 &&
+          (search || selectedPositions.length > 0) && <p>no results found</p>}
         <ul className='divide-cb-dusty-blue divide-y'>
           {taggedPlayers.map(player => {
             const index = players.indexOf(player)
