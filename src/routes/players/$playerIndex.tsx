@@ -6,6 +6,7 @@ import Menu from '@/components/menu'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
+import ImportExportModal from '@/components/import-export-modal'
 
 export const Route = createFileRoute('/players/$playerIndex')({
   component: RouteComponent,
@@ -174,6 +175,16 @@ function RouteComponent() {
           />
         </div>
         <div className='flex space-x-6'>
+          <ImportExportModal
+            object={player}
+            setObject={(p: Player) => {
+              setNewPlayer(p)
+              savePlayer({
+                index: playerIndex,
+                player: p,
+              })
+            }}
+          />
           <button
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
             type='button'
