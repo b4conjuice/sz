@@ -18,6 +18,7 @@ import { getTeams, useTeams } from '@/lib/use-teams'
 import CoreCommandPalette from '@/components/command-palette'
 import { Depth, Draft } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
+import ImportExportModal from '@/components/import-export-modal'
 
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
@@ -212,6 +213,15 @@ function RouteComponent() {
           />
         </div>
         <div className='flex space-x-6'>
+          <ImportExportModal
+            object={team}
+            setObject={(newTeam: Team) => {
+              saveTeam({
+                index: teamIndex,
+                team: newTeam,
+              })
+            }}
+          />
           <button
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
             type='button'
