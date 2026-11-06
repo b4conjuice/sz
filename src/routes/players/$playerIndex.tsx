@@ -2,7 +2,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import classNames from 'classnames'
-import { PlusIcon } from '@heroicons/react/20/solid'
+import { ArrowDownOnSquareIcon, PlusIcon } from '@heroicons/react/20/solid'
 
 import Menu from '@/components/menu'
 import { usePlayers } from '@/lib/use-players'
@@ -130,7 +130,7 @@ function RouteComponent() {
         </ul>
         <div className='flex items-center gap-4'>
           <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
             type='button'
             onClick={() => {
               savePlayer({
@@ -144,7 +144,7 @@ function RouteComponent() {
               listsAreEqual(newPlayer.position, player.position)
             }
           >
-            save
+            <ArrowDownOnSquareIcon className='h-6 w-6' /> save
           </button>
         </div>
         <div className='flex gap-4'>
