@@ -207,15 +207,6 @@ function RouteComponent() {
               })
             }}
           />
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
-              // setIsAddPlayerModalOpen(true)
-            }}
-          >
-            {/* <PlusIcon className='h-6 w-6' /> */}
-          </button>
         </div>
       </footer>
       <Modal
