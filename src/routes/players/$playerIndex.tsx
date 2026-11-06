@@ -1,12 +1,15 @@
+import { useHotkey } from '@tanstack/react-hotkeys'
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import classNames from 'classnames'
+import { PlusIcon } from '@heroicons/react/20/solid'
 
 import Menu from '@/components/menu'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
 import ImportExportModal from '@/components/import-export-modal'
+import Modal from '@/components/modal'
 
 export const Route = createFileRoute('/players/$playerIndex')({
   component: RouteComponent,
@@ -32,11 +35,16 @@ function listsAreEqual(list1: string[], list2: string[]): boolean {
 }
 
 function RouteComponent() {
+  const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false)
+  const [newTeamName, setNewTeamName] = useState('')
+  useHotkey('A', () => {
+    setIsAddTeamModalOpen(true)
+  })
   const navigate = useNavigate()
   const { playerIndex: playerIndexParam } = Route.useParams()
   const playerIndex = Number(playerIndexParam)
   const { players, savePlayer } = usePlayers()
-  const { teams } = useTeams()
+  const { teams, saveTeam, addPlayerToTeam } = useTeams()
   const player = players[playerIndex]
   const [newPlayer, setNewPlayer] = useState<Player>(player)
   const rank = playerIndex + 1
@@ -52,6 +60,9 @@ function RouteComponent() {
   const { name, position, team } = player
   const teamsWithPlayer = teams.filter(t =>
     t.players.some(p => p.name === name)
+  )
+  const teamsWithoutPlayer = teams.filter(t =>
+    t.players.every(p => p.name !== name)
   )
   return (
     <>
@@ -136,7 +147,18 @@ function RouteComponent() {
             save
           </button>
         </div>
-        <h2>on teams</h2>
+        <div className='flex gap-4'>
+          <h2>on teams</h2>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              setIsAddTeamModalOpen(true)
+            }}
+          >
+            <PlusIcon className='h-6 w-6' />
+          </button>
+        </div>
         {teamsWithPlayer.length > 0 ? (
           <ul className='divide-cb-dusty-blue divide-y'>
             {teamsWithPlayer.map((t, index) => (
@@ -196,6 +218,67 @@ function RouteComponent() {
           </button>
         </div>
       </footer>
+      <Modal
+        title={`add ${name} to team`}
+        isOpen={isAddTeamModalOpen}
+        setIsOpen={setIsAddTeamModalOpen}
+      >
+        {teamsWithoutPlayer.length > 0 && (
+          <ul className='divide-cb-white/25 divide-y'>
+            {teamsWithoutPlayer.map((t, index) => (
+              <li key={index} className='flex gap-2 py-4 first:pt-0'>
+                <button
+                  onClick={() => {
+                    addPlayerToTeam({
+                      teamIndex: teams.indexOf(t),
+                      player,
+                    })
+                    setIsAddTeamModalOpen(false)
+                  }}
+                  className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2'
+                >
+                  <PlusIcon className='h-6 w-6' /> {t.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <hr className='border-cb-white/25' />
+        <p>create new team with player</p>
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='name'
+          value={newTeamName}
+          onChange={e => {
+            setNewTeamName(e.target.value)
+          }}
+        />
+        <div className='flex items-center gap-4'>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              saveTeam({
+                team: {
+                  name: newTeamName,
+                  players: [player],
+                  draft: {
+                    players: [],
+                    teams: 12,
+                    pick: 1,
+                    complete: false,
+                  },
+                },
+              })
+              setIsAddTeamModalOpen(false)
+            }}
+            disabled={newTeamName === ''}
+          >
+            save
+          </button>
+        </div>
+      </Modal>
     </>
   )
 }
