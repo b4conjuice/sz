@@ -113,10 +113,17 @@ function RouteComponent() {
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
             type='button'
             onClick={() => {
+              // TODO: maybe add `createTeam` which sets the default
               saveTeam({
                 team: {
                   name: newTeamName,
                   players: [],
+                  draft: {
+                    players: [],
+                    teams: 12,
+                    pick: 1,
+                    complete: false,
+                  },
                 },
               })
               setIsAddTeamModalOpen(false)
