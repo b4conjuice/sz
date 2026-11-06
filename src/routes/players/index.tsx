@@ -89,7 +89,7 @@ function RouteComponent() {
     .filter(player =>
       selectedTeams.length > 0
         ? selectedTeams.every(tag =>
-            tag === 'no-team' ? player.team.length === 0 : player.team === tag
+            tag === 'no-team' ? player.team === '' : player.team === tag
           )
         : true
     )
