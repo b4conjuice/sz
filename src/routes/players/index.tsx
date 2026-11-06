@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router'
-import {
-  ArrowDownOnSquareIcon,
-  CodeBracketIcon,
-  PlusIcon,
-} from '@heroicons/react/20/solid'
+import { PlusIcon } from '@heroicons/react/20/solid'
 import classNames from 'classnames'
-import { useCopyToClipboard, useLocalStorage } from '@uidotdev/usehooks'
+import { useLocalStorage } from '@uidotdev/usehooks'
 
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import useSearch from '@/lib/use-search'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
-import { PLAYERS_SCRIPT } from '@/lib/config'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/players/')({
@@ -31,16 +26,10 @@ export const Route = createFileRoute('/players/')({
 const routeApi = getRouteApi('/players/')
 
 function RouteComponent() {
-  const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { q } = Route.useSearch()
   const query = q ?? ''
   const navigate = routeApi.useNavigate()
-  const [isOverwritePlayersModalOpen, setIsOverwritePlayersModalOpen] =
-    useState(false)
-  const { players, overwritePlayers, savePlayer } = usePlayers()
-  const [newPlayersAsString, setNewPlayersAsString] = useState(
-    JSON.stringify(players)
-  )
+  const { players, savePlayer } = usePlayers()
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
   const [newPlayer, setNewPlayer] = useState<Player>({
     name: '',
@@ -227,15 +216,6 @@ function RouteComponent() {
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
             type='button'
             onClick={() => {
-              setIsOverwritePlayersModalOpen(true)
-            }}
-          >
-            <CodeBracketIcon className='h-6 w-6' />
-          </button>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
               setIsAddPlayerModalOpen(true)
             }}
           >
@@ -289,51 +269,6 @@ function RouteComponent() {
             }
           >
             save
-          </button>
-        </div>
-      </Modal>
-      <Modal
-        title='overwrite players'
-        isOpen={isOverwritePlayersModalOpen}
-        setIsOpen={setIsOverwritePlayersModalOpen}
-      >
-        <button
-          className='text-cb-yellow hover:text-cb-yellow/75'
-          onClick={async () => {
-            await copyToClipboard(PLAYERS_SCRIPT)
-          }}
-        >
-          copy players script
-        </button>
-        <textarea
-          className='border-cobalt bg-cobalt caret-cb-yellow focus:border-cb-light-blue text-cb-white h-full w-full grow focus:ring-0'
-          value={newPlayersAsString}
-          onChange={e => {
-            setNewPlayersAsString(e.target.value)
-          }}
-        />
-        <div className='flex items-center gap-4'>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-            onClick={() => {
-              overwritePlayers([])
-            }}
-            disabled={JSON.stringify(players) === JSON.stringify([])}
-          >
-            reset
-          </button>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
-              overwritePlayers(JSON.parse(newPlayersAsString).flat())
-            }}
-            disabled={
-              JSON.stringify(players) ===
-              JSON.stringify(JSON.parse(newPlayersAsString).flat())
-            }
-          >
-            <ArrowDownOnSquareIcon className='h-6 w-6' />
           </button>
         </div>
       </Modal>
