@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { useHotkey } from '@tanstack/react-hotkeys'
 
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
@@ -26,6 +27,9 @@ function RouteComponent() {
   >(null)
   const teamToBeDeleted =
     teamToBeDeletedIndex !== null ? teams[teamToBeDeletedIndex] : null
+  useHotkey('A', () => {
+    setIsAddTeamModalOpen(true)
+  })
   return (
     <>
       <main className='flex grow flex-col gap-4 p-4'>
