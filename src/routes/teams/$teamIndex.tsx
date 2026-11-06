@@ -82,8 +82,10 @@ function AddPlayer({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
-  const [isDraftPlayerModalOpen, setIsDraftPlayerModalOpen] = useState(false)
+  const [isAddPlayerCommandPaletteOpen, setIsAddPlayerCommandPaletteOpen] =
+    useState(false)
+  const [isDraftPlayerCommandPaletteOpen, setIsDraftPlayerCommandPaletteOpen] =
+    useState(false)
   const [isDraftSettingsModalOpen, setIsDraftSettingsModalOpen] =
     useState(false)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
@@ -183,7 +185,7 @@ function RouteComponent() {
               className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
               type='button'
               onClick={() => {
-                setIsDraftPlayerModalOpen(true)
+                setIsDraftPlayerCommandPaletteOpen(true)
               }}
               disabled={draft?.complete}
             >
@@ -226,39 +228,13 @@ function RouteComponent() {
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
             type='button'
             onClick={() => {
-              setIsAddPlayerModalOpen(true)
+              setIsAddPlayerCommandPaletteOpen(true)
             }}
           >
             <PlusIcon className='h-6 w-6' />
           </button>
         </div>
       </footer>
-      <Modal
-        title='add player'
-        isOpen={isAddPlayerModalOpen}
-        setIsOpen={setIsAddPlayerModalOpen}
-      >
-        <AddPlayer
-          addPlayer={addPlayer}
-          disabledPlayers={team.players}
-          onPlayerAdded={() => {
-            setIsAddPlayerModalOpen(false)
-          }}
-        />
-      </Modal>
-      <Modal
-        title='draft player'
-        isOpen={isDraftPlayerModalOpen}
-        setIsOpen={setIsDraftPlayerModalOpen}
-      >
-        <AddPlayer
-          addPlayer={draftPlayer}
-          disabledPlayers={team.draft?.players}
-          onPlayerAdded={() => {
-            setIsDraftPlayerModalOpen(false)
-          }}
-        />
-      </Modal>
       <Modal
         title='draft settings'
         isOpen={isDraftSettingsModalOpen}
@@ -345,6 +321,8 @@ function RouteComponent() {
             },
           })),
         ]}
+        isOpen={isAddPlayerCommandPaletteOpen}
+        setIsOpen={setIsAddPlayerCommandPaletteOpen}
       />
       <CoreCommandPalette
         toggleIsOpenHotKey={'R'}
@@ -362,19 +340,23 @@ function RouteComponent() {
           })),
         ]}
       />
-      <CoreCommandPalette
-        toggleIsOpenHotKey={'D'}
-        placeholder='draft player'
-        commands={[
-          ...playerList.map((player, index) => ({
-            id: `draft-player-${index}`,
-            title: `draft ${player.name} - ${player.position.join(', ')}`,
-            action: () => {
-              draftPlayer(player)
-            },
-          })),
-        ]}
-      />
+      {!draft?.complete && (
+        <CoreCommandPalette
+          toggleIsOpenHotKey={'D'}
+          placeholder='draft player'
+          commands={[
+            ...playerList.map((player, index) => ({
+              id: `draft-player-${index}`,
+              title: `draft ${player.name} - ${player.position.join(', ')}`,
+              action: () => {
+                draftPlayer(player)
+              },
+            })),
+          ]}
+          isOpen={isDraftPlayerCommandPaletteOpen}
+          setIsOpen={setIsDraftPlayerCommandPaletteOpen}
+        />
+      )}
     </>
   )
 }
