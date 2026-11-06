@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useCopyToClipboard, useLocalStorage } from '@uidotdev/usehooks'
 
 import Menu from '@/components/menu'
 import ImportExport from '@/components/import-export'
@@ -7,6 +8,7 @@ import type { Team } from '@/lib/use-teams'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { DEFAULT_TITLE } from '@/routes/__root'
+import { PLAYERS_SCRIPT } from '@/lib/config'
 
 export const Route = createFileRoute('/settings')({
   component: RouteComponent,
@@ -16,6 +18,7 @@ export const Route = createFileRoute('/settings')({
 })
 
 function RouteComponent() {
+  const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { teams, overwriteTeams } = useTeams()
   const { players, overwritePlayers } = usePlayers()
   return (
@@ -28,7 +31,17 @@ function RouteComponent() {
             overwriteTeams(newTeams)
           }}
         />
-        <h2>players</h2>
+        <div className='flex justify-between'>
+          <h2>players</h2>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75'
+            onClick={async () => {
+              await copyToClipboard(PLAYERS_SCRIPT)
+            }}
+          >
+            copy players script
+          </button>
+        </div>
         <ImportExport
           object={players}
           setObject={(newPlayers: Player[]) => {
