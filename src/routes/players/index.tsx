@@ -73,7 +73,7 @@ function RouteComponent() {
       const { team } = player
       return [...currentAllTags, team]
     }, selectedTeams),
-  ]
+  ].filter(team => Boolean(team))
   const allTeamTags = [...new Set([...teams, 'no-team'])]
 
   const taggedPlayers = results
