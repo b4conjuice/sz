@@ -73,17 +73,39 @@ function RouteComponent() {
       return [...currentAllTags, ...playerTags]
     }, selectedPositions),
   ]
-  const allTags = [...new Set([...positions, 'no-position'])]
+  const allPositionTags = [...new Set([...positions, 'no-position'])]
 
-  const taggedPlayers = results.filter(player =>
-    selectedPositions.length > 0
-      ? selectedPositions.every(tag =>
-          tag === 'no-position'
-            ? player.position.length === 0
-            : player.position.includes(tag)
-        )
-      : true
+  const [selectedTeams, setSelectedTeams] = useLocalStorage<string[]>(
+    'sz-players-selected-teams',
+    []
   )
+  const teams = [
+    ...players.reduce((currentAllTags: string[], player: Player) => {
+      const { team } = player
+      return [...currentAllTags, team]
+    }, selectedTeams),
+  ]
+  const allTeamTags = [...new Set([...teams, 'no-team'])]
+
+  const taggedPlayers = results
+    .filter(player =>
+      selectedPositions.length > 0
+        ? selectedPositions.every(tag =>
+            tag === 'no-position'
+              ? player.position.length === 0
+              : player.position.includes(tag)
+          )
+        : true
+    )
+    .filter(player =>
+      selectedTeams.length > 0
+        ? selectedTeams.every(tag =>
+            tag === 'no-team'
+              ? player.team.length === 0
+              : player.team.includes(tag)
+          )
+        : true
+    )
   return (
     <>
       <main className='flex grow flex-col gap-4 p-4'>
@@ -98,13 +120,13 @@ function RouteComponent() {
             }}
           />
         </div>
-        {allTags.length > 0 && (
+        {allPositionTags.length > 0 && (
           <ul className='flex gap-2 overflow-x-auto'>
-            {allTags.map(tag => (
+            {allPositionTags.map(tag => (
               <li key={tag}>
                 <button
                   className={classNames(
-                    'bg-cb-blue rounded-lg border p-2',
+                    'bg-cb-blue rounded-lg border p-2 text-nowrap',
                     selectedPositions.includes(tag)
                       ? 'border-cb-pink'
                       : 'border-cb-blue'
@@ -120,6 +142,36 @@ function RouteComponent() {
                       newSelectedTags.push(tag)
                     }
                     setSelectedPositions(newSelectedTags)
+                  }}
+                >
+                  {tag}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {allTeamTags.length > 0 && (
+          <ul className='flex gap-2 overflow-x-auto'>
+            {allTeamTags.map(tag => (
+              <li key={tag}>
+                <button
+                  className={classNames(
+                    'bg-cb-blue rounded-lg border p-2 text-nowrap',
+                    selectedTeams.includes(tag)
+                      ? 'border-cb-pink'
+                      : 'border-cb-blue'
+                  )}
+                  onClick={() => {
+                    const selectedTagIndex = selectedTeams.findIndex(
+                      t => t === tag
+                    )
+                    const newSelectedTags = [...selectedTeams]
+                    if (selectedTagIndex > -1) {
+                      newSelectedTags.splice(selectedTagIndex, 1)
+                    } else {
+                      newSelectedTags.push(tag)
+                    }
+                    setSelectedTeams(newSelectedTags)
                   }}
                 >
                   {tag}
