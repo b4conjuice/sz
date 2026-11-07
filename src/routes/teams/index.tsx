@@ -139,13 +139,14 @@ function RouteComponent() {
         <ConfirmModal
           isOpen={isConfirmModalOpen}
           setIsOpen={setIsConfirmModalOpen}
-          confirmAction={() => {
+          action={() => {
             deleteTeamByIndex(teamToBeDeletedIndex)
             setIsConfirmModalOpen(false)
             setTeamToBeDeletedIndex(null)
           }}
-          title={`delete ${teamToBeDeleted.name}?`}
-        />
+        >
+          delete {teamToBeDeleted.name}?
+        </ConfirmModal>
       )}
       {/* <CommandPalette
         commands={[

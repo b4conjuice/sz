@@ -292,23 +292,25 @@ function RouteComponent() {
         <ConfirmModal
           isOpen={isConfirmModalOpen}
           setIsOpen={setIsConfirmModalOpen}
-          confirmAction={() => {
+          action={() => {
             deletePlayerByIndex({
               teamIndex,
               playerIndex: playerToBeDeletedIndex,
             })
           }}
-          title={`drop ${playerToBeDeleted.name}?`}
-        />
+        >
+          drop {playerToBeDeleted.name}?
+        </ConfirmModal>
       )}
       <ConfirmModal
         isOpen={isConfirmClearDraftModalOpen}
         setIsOpen={setIsConfirmClearDraftModalOpen}
-        confirmAction={() => {
+        action={() => {
           overwriteDraft({ teamIndex, draft: undefined })
         }}
-        title='clear draft?'
-      />
+      >
+        clear draft?
+      </ConfirmModal>
       <CoreCommandPalette
         toggleIsOpenHotKey={'A'}
         placeholder='add player'

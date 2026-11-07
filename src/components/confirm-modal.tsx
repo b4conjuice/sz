@@ -1,35 +1,35 @@
-import type { Dispatch, SetStateAction } from 'react'
+import type { ComponentProps } from 'react'
+import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 
 import Modal from '@/components/modal'
 
+type ModalProps = ComponentProps<typeof Modal>
+
 export default function ConfirmModal({
-  isOpen,
-  setIsOpen,
-  confirmAction,
-  title = 'are you sure?',
-}: {
-  isOpen: boolean
-  setIsOpen: Dispatch<SetStateAction<boolean>>
-  confirmAction: () => void
-  title?: string
+  action,
+  ...modalProps
+}: ModalProps & {
+  action: () => void
 }) {
+  const { setIsOpen, children } = modalProps
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title}>
+    <Modal {...modalProps}>
+      {children}
       <div className='flex space-x-4'>
         <button
           onClick={() => {
-            confirmAction()
+            action()
             setIsOpen(false)
           }}
         >
-          yes
+          <CheckIcon className='h-6 w-6 text-green-700 hover:text-green-700/75' />
         </button>
         <button
           onClick={() => {
             setIsOpen(false)
           }}
         >
-          no
+          <XMarkIcon className='h-6 w-6 text-red-700 hover:text-red-700/75' />
         </button>
       </div>
     </Modal>
