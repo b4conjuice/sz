@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import classNames from 'classnames'
 import {
   Cog6ToothIcon,
   LockClosedIcon,
@@ -15,6 +16,7 @@ import SearchPlayer from '@/components/search-player'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { getTeams, useTeams } from '@/lib/use-teams'
+import type { Team } from '@/lib/use-teams'
 import CoreCommandPalette from '@/components/command-palette'
 import { Depth, Draft } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
@@ -95,6 +97,7 @@ function RouteComponent() {
   const teamIndex = Number(teamIndexParam)
   const {
     teams,
+    saveTeam,
     addPlayerToTeam,
     deletePlayerByIndex,
     addPlayerToDraft,
@@ -102,7 +105,36 @@ function RouteComponent() {
     toggleCompleteDraft,
     overwriteDraft,
   } = useTeams()
-  const { players: playerList } = usePlayers()
+  const { players: playerList, savePlayer } = usePlayers()
+  const [isAddNewPlayerModalOpen, setIsAddNewPlayerModalOpen] = useState(false)
+  const [newPlayer, setNewPlayer] = useState<Player>({
+    name: '',
+    team: '',
+    position: [],
+  })
+  const positions = [
+    ...new Set([
+      'PG',
+      'SG',
+      'SF',
+      'PF',
+      'C',
+      ...playerList.reduce(
+        (currentAllTags: string[], currentPlayer: Player) => {
+          const { position } = currentPlayer
+          return [...currentAllTags, ...position]
+        },
+        []
+      ),
+    ]),
+  ]
+  const playerTeams = [
+    ...new Set(
+      playerList.reduce((currentTeams: string[], currentPlayer: Player) => {
+        return [...currentTeams, currentPlayer.team]
+      }, [])
+    ),
+  ].filter(team => Boolean(team))
   const team = teams[teamIndex]
   if (!team) {
     return <p>team does not exist</p>
@@ -315,6 +347,13 @@ function RouteComponent() {
         toggleIsOpenHotKey={'A'}
         placeholder='add player'
         commands={[
+          {
+            id: 'add-new-player',
+            title: 'create new player',
+            action: () => {
+              setIsAddNewPlayerModalOpen(true)
+            },
+          },
           ...playerList.map((player, index) => ({
             id: `add-player-${index}`,
             title: `add ${player.name} - ${player.position.join(', ')}`,
@@ -359,6 +398,102 @@ function RouteComponent() {
           setIsOpen={setIsDraftPlayerCommandPaletteOpen}
         />
       )}
+      <Modal
+        title='create new player'
+        isOpen={isAddNewPlayerModalOpen}
+        setIsOpen={setIsAddNewPlayerModalOpen}
+      >
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='name'
+          value={newPlayer.name}
+          onChange={e => {
+            setNewPlayer(prev => ({
+              ...prev,
+              name: e.target.value,
+            }))
+          }}
+        />
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='team'
+          value={newPlayer.team}
+          onChange={e => {
+            setNewPlayer(prev => ({
+              ...prev,
+              team: e.target.value,
+            }))
+          }}
+        />
+        {playerTeams.length > 0 && (
+          <select
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            value={playerTeams.includes(newPlayer.team) ? newPlayer.team : ''}
+            onChange={e => {
+              setNewPlayer(prev => ({
+                ...prev,
+                team: e.target.value,
+              }))
+            }}
+          >
+            <option value=''>select team</option>
+            {playerTeams.map(playerTeam => (
+              <option key={playerTeam} value={playerTeam}>
+                {playerTeam}
+              </option>
+            ))}
+          </select>
+        )}
+        <ul className='flex gap-2 overflow-x-auto'>
+          {positions.map(pos => (
+            <li key={pos}>
+              <button
+                className={classNames(
+                  'bg-cb-blue rounded-lg border p-2',
+                  newPlayer.position.includes(pos)
+                    ? 'border-cb-pink'
+                    : 'border-cb-blue'
+                )}
+                type='button'
+                onClick={() => {
+                  const newPositionIndex = newPlayer.position.findIndex(
+                    p => p === pos
+                  )
+                  const newPosition = [...newPlayer.position]
+                  if (newPositionIndex > -1) {
+                    newPosition.splice(newPositionIndex, 1)
+                  } else {
+                    newPosition.push(pos)
+                  }
+                  setNewPlayer(prev => ({
+                    ...prev,
+                    position: newPosition,
+                  }))
+                }}
+              >
+                {pos}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className='flex items-center gap-4'>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              savePlayer({ player: newPlayer })
+              addPlayer(newPlayer)
+              setNewPlayer({ name: '', team: '', position: [] })
+              setIsAddNewPlayerModalOpen(false)
+            }}
+            disabled={newPlayer.name === '' || newPlayer.team === ''}
+          >
+            save
+          </button>
+        </div>
+      </Modal>
     </>
   )
 }
