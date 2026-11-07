@@ -14,9 +14,26 @@ export type Player = {
   position: string[]
 }
 
+const PLAYERS_STORAGE_KEY = 'sz-players'
+
+export function getPlayers(): Player[] {
+  if (typeof window === 'undefined') {
+    return defaultPlayers
+  }
+  const stored = window.localStorage.getItem(PLAYERS_STORAGE_KEY)
+  if (!stored) {
+    return defaultPlayers
+  }
+  try {
+    return JSON.parse(stored) as Player[]
+  } catch {
+    return defaultPlayers
+  }
+}
+
 export function usePlayers() {
   const [players, setPlayers] = useLocalStorage<Player[]>(
-    'sz-players',
+    PLAYERS_STORAGE_KEY,
     defaultPlayers
   )
   const overwritePlayers = (newPlayers: Player[]) => {

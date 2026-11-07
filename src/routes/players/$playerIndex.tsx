@@ -5,14 +5,29 @@ import classNames from 'classnames'
 import { ArrowDownOnSquareIcon, PlusIcon } from '@heroicons/react/20/solid'
 
 import Menu from '@/components/menu'
-import { usePlayers } from '@/lib/use-players'
+import { getPlayers, usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
 import ImportExportModal from '@/components/import-export-modal'
 import Modal from '@/components/modal'
+import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/players/$playerIndex')({
   component: RouteComponent,
+  ssr: false,
+  loader: ({ params }) => {
+    const player = getPlayers()[Number(params.playerIndex)]
+    return { player }
+  },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: loaderData?.player
+          ? `${loaderData.player.name} - ${DEFAULT_TITLE}`
+          : `players - ${DEFAULT_TITLE}`,
+      },
+    ],
+  }),
 })
 
 function listsAreEqual(list1: string[], list2: string[]): boolean {
