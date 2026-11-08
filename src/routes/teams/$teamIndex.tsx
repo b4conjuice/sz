@@ -65,20 +65,22 @@ function RouteComponent() {
       <main className='flex grow flex-col gap-4 p-4'>
         <h2>{name}</h2>
         {tab === 'draft' ? (
-          <Draft
-            draft={draft}
-            teamIndex={teamIndex}
-            addPlayerToDraft={addPlayerToDraft}
-            toggleCompleteDraft={toggleCompleteDraft}
-            overwriteDraft={overwriteDraft}
-            playerList={playerList}
-          />
+          <>
+            <Depth players={draft?.players ?? []} />
+            <Draft
+              draft={draft}
+              teamIndex={teamIndex}
+              addPlayerToDraft={addPlayerToDraft}
+              toggleCompleteDraft={toggleCompleteDraft}
+              overwriteDraft={overwriteDraft}
+              playerList={playerList}
+            />
+          </>
         ) : tab === 'history' ? (
           <TransactionHistory transactions={team.transactions} />
         ) : (
           <>
-            <h2>depth</h2>
-            <Depth team={team} />
+            <Depth players={players} />
             <Roster
               team={team}
               teamIndex={teamIndex}

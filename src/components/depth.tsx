@@ -1,4 +1,4 @@
-import type { Team as TeamType } from '@/lib/use-teams'
+import type { Player } from '@/lib/use-players'
 
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
 
@@ -6,9 +6,9 @@ const displayPlayerName = (name: string) => {
   return name.split(' ').at(1)?.toLowerCase() ?? name.toLowerCase()
 }
 
-export function Depth({ team }: { team: TeamType }) {
+export function Depth({ players }: { players: Player[] }) {
   const getPlayersByPosition = (position: string) => {
-    const playersByPosition = team.players
+    const playersByPosition = players
       .filter(player => player.position.some(pos => pos === position))
       .map(player => displayPlayerName(player.name))
     return playersByPosition
