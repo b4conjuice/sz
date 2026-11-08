@@ -92,7 +92,13 @@ export function Roster({
   const effectiveSlots = fillEmptySlotsWithPlayers(sizedSlots, players)
   const rosterSize = getRosterSize(effectiveSlots)
   const teamRosterSize = getRosterSize(sizedSlots)
-  const isRosterFull = players.length >= teamRosterSize
+  const irPlayerNames = new Set(
+    sizedSlots.filter(isIrSlot).map(slot => slot.player)
+  )
+  const activePlayerCount = players.filter(
+    player => !irPlayerNames.has(player.name)
+  ).length
+  const isRosterFull = activePlayerCount >= teamRosterSize
   const addPlayer = (player: Player) => {
     if (isRosterFull) {
       setPendingPlayer(player)
