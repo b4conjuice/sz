@@ -175,6 +175,30 @@ export function Roster({
     })
     setMovingSlotIndex(null)
   }
+  const dropPlayerAndMove = (fromIndex: number | null, toIndex: number) => {
+    if (fromIndex === null) {
+      return
+    }
+    const fromSlot = effectiveSlots.at(fromIndex)
+    const toSlot = effectiveSlots.at(toIndex)
+    if (!fromSlot || !toSlot) {
+      return
+    }
+    saveTeam({
+      ...team,
+      players: players.filter(player => player.name !== toSlot.player),
+      slots: effectiveSlots.map((slot, index) => {
+        if (index === fromIndex) {
+          return { ...slot, player: EMPTY_SLOT_PLAYER }
+        }
+        if (index === toIndex) {
+          return { ...slot, player: fromSlot.player }
+        }
+        return slot
+      }),
+    })
+    setMovingSlotIndex(null)
+  }
   return (
     <>
       <div className='flex'>
@@ -224,6 +248,12 @@ export function Roster({
             : true
           const isMovingSlot = movingSlotIndex === slotIndex
           const canMoveHere = canMoveToSlot(slot, slotIndex)
+          const canReplaceHere =
+            canMoveHere &&
+            movingSlot !== undefined &&
+            isIrSlot(movingSlot) &&
+            !isIrSlot(slot) &&
+            !isEmpty
           return (
             <li key={slotIndex} className='flex py-4 first:pt-0'>
               <span className='w-12 shrink-0'>{slot.label}</span>
@@ -249,6 +279,17 @@ export function Roster({
                     }}
                   >
                     move here
+                  </button>
+                )}
+                {canReplaceHere && (
+                  <button
+                    className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+                    type='button'
+                    onClick={() => {
+                      dropPlayerAndMove(movingSlotIndex, slotIndex)
+                    }}
+                  >
+                    <TrashIcon className='h-6 w-6' />
                   </button>
                 )}
                 {movingSlotIndex === null && !isEmpty && (
