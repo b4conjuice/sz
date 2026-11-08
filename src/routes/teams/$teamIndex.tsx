@@ -64,7 +64,6 @@ function RouteComponent() {
     <>
       <main className='flex grow flex-col gap-4 p-4'>
         <h2>{name}</h2>
-        <h2>depth</h2>
         {tab === 'draft' ? (
           <Draft
             draft={draft}
@@ -78,6 +77,7 @@ function RouteComponent() {
           <TransactionHistory transactions={team.transactions} />
         ) : (
           <>
+            <h2>depth</h2>
             <Depth team={team} />
             <Roster
               team={team}
