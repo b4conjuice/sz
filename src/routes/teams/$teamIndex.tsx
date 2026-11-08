@@ -134,7 +134,7 @@ function RouteComponent() {
             }}
             disabled={tab === 'draft'}
           >
-            <PencilSquareIcon className='h-6 w-6' />
+            <TableCellsIcon className='h-6 w-6' />
           </button>
           <button
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:text-cb-light-blue disabled:pointer-events-none'
@@ -144,7 +144,7 @@ function RouteComponent() {
             }}
             disabled={tab === 'history'}
           >
-            <TableCellsIcon className='h-6 w-6' />
+            <PencilSquareIcon className='h-6 w-6' />
           </button>
           <button
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:text-cb-light-blue disabled:pointer-events-none'
