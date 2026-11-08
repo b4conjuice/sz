@@ -35,6 +35,7 @@ function RouteComponent() {
     teams,
     saveTeam,
     addPlayerToTeam,
+    replacePlayerOnTeam,
     deletePlayerByIndex,
     addPlayerToDraft,
     toggleCompleteDraft,
@@ -58,6 +59,7 @@ function RouteComponent() {
           teamIndex={teamIndex}
           playerList={playerList}
           addPlayerToTeam={addPlayerToTeam}
+          replacePlayerOnTeam={replacePlayerOnTeam}
           deletePlayerByIndex={deletePlayerByIndex}
           savePlayer={savePlayer}
           saveTeam={newTeam => {

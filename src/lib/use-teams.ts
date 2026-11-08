@@ -188,12 +188,43 @@ export const fillEmptySlotsWithPlayers = (
       }
     } else {
       normalSlots.push({
-        ...createSlot(NORMAL_SLOT_ORDER.at(normalSlots.length) ?? U_SLOT),
+        ...createSlot(NORMAL_SLOT_ORDER.at(normalSlots.length) ?? B_SLOT),
         player: player.name,
       })
     }
   }
   return [...normalSlots, ...irSlots]
+}
+
+export const replacePlayerInSlots = (
+  slots: Slot[],
+  player: Player,
+  replacedPlayerName: string
+): Slot[] => {
+  const replacedSlotIndex = slots.findIndex(
+    slot => slot.player === replacedPlayerName
+  )
+  const replacedSlot =
+    replacedSlotIndex === -1 ? undefined : slots[replacedSlotIndex]
+  const isEligible =
+    replacedSlot !== undefined &&
+    replacedSlot.eligiblePositions.some(position =>
+      player.position.includes(position)
+    )
+  if (replacedSlot !== undefined && isEligible) {
+    return slots.map((slot, index) =>
+      index === replacedSlotIndex ? { ...slot, player: player.name } : slot
+    )
+  }
+  const slotsWithoutReplacedPlayer = slots.map(slot =>
+    slot.player === replacedPlayerName
+      ? { ...slot, player: EMPTY_SLOT_PLAYER }
+      : slot
+  )
+  return [
+    ...slotsWithoutReplacedPlayer,
+    { ...createSlot(B_SLOT), player: player.name },
+  ]
 }
 
 const defaultTeams: Team[] = []
@@ -257,6 +288,29 @@ export function useTeams() {
         team.players
       )
 
+      return newTeams
+    })
+  }
+  const replacePlayerOnTeam = ({
+    teamIndex,
+    player,
+    replacedPlayerName,
+  }: {
+    teamIndex: number
+    player: Player
+    replacedPlayerName: string
+  }) => {
+    setTeams(prev => {
+      const newTeams = [...prev]
+      const team = newTeams[teamIndex]
+      team.players = team.players
+        .filter(currentPlayer => currentPlayer.name !== replacedPlayerName)
+        .concat(player)
+      team.slots = replacePlayerInSlots(
+        team.slots ?? DEFAULT_SLOTS,
+        player,
+        replacedPlayerName
+      )
       return newTeams
     })
   }
@@ -362,6 +416,7 @@ export function useTeams() {
     saveTeam,
     deleteTeamByIndex,
     addPlayerToTeam,
+    replacePlayerOnTeam,
     deletePlayerByIndex,
     addPlayerToDraft,
     deletePlayerFromDraftByIndex,

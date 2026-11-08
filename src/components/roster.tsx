@@ -28,6 +28,7 @@ export function Roster({
   teamIndex,
   playerList,
   addPlayerToTeam,
+  replacePlayerOnTeam,
   deletePlayerByIndex,
   savePlayer,
   saveTeam,
@@ -36,6 +37,11 @@ export function Roster({
   teamIndex: number
   playerList: Player[]
   addPlayerToTeam: (args: { teamIndex: number; player: Player }) => void
+  replacePlayerOnTeam: (args: {
+    teamIndex: number
+    player: Player
+    replacedPlayerName: string
+  }) => void
   deletePlayerByIndex: (args: {
     teamIndex: number
     playerIndex: number
@@ -54,6 +60,7 @@ export function Roster({
     position: [],
   })
   const [movingSlotIndex, setMovingSlotIndex] = useState<number | null>(null)
+  const [pendingPlayer, setPendingPlayer] = useState<Player | null>(null)
   const positions = [
     ...new Set([
       'PG',
@@ -77,9 +84,6 @@ export function Roster({
       }, [])
     ),
   ].filter(playerTeam => Boolean(playerTeam))
-  const addPlayer = (player: Player) => {
-    addPlayerToTeam({ player, teamIndex })
-  }
   const { players, draft } = team
   const slots = team.slots ?? DEFAULT_SLOTS
   const draftRosterSize = draft?.complete ? draft.players.length : null
@@ -87,6 +91,15 @@ export function Roster({
     draftRosterSize === null ? slots : resizeSlots(slots, draftRosterSize)
   const effectiveSlots = fillEmptySlotsWithPlayers(sizedSlots, players)
   const rosterSize = getRosterSize(effectiveSlots)
+  const teamRosterSize = getRosterSize(sizedSlots)
+  const isRosterFull = players.length >= teamRosterSize
+  const addPlayer = (player: Player) => {
+    if (isRosterFull) {
+      setPendingPlayer(player)
+      return
+    }
+    addPlayerToTeam({ player, teamIndex })
+  }
   const [newRosterSize, setNewRosterSize] = useState(rosterSize)
   const [newSlots, setNewSlots] = useState<Slot[]>(effectiveSlots)
   const [replacePlayer, setReplacePlayer] = useState(false)
@@ -408,6 +421,34 @@ export function Roster({
         ]}
         isOpen={isAddPlayerCommandPaletteOpen}
         setIsOpen={setIsAddPlayerCommandPaletteOpen}
+      />
+      <CoreCommandPalette
+        placeholder={
+          pendingPlayer
+            ? `drop a player to add ${pendingPlayer.name}`
+            : 'drop player'
+        }
+        isOpen={pendingPlayer !== null}
+        setIsOpen={isOpen => {
+          if (!isOpen) {
+            setPendingPlayer(null)
+          }
+        }}
+        commands={players.map((player, index) => ({
+          id: `replace-player-${index}`,
+          title: `drop ${player.name} - ${player.position.join(', ')}`,
+          action: () => {
+            if (!pendingPlayer) {
+              return
+            }
+            replacePlayerOnTeam({
+              teamIndex,
+              player: pendingPlayer,
+              replacedPlayerName: player.name,
+            })
+            setPendingPlayer(null)
+          },
+        }))}
       />
       <CoreCommandPalette
         toggleIsOpenHotKey={'R'}
