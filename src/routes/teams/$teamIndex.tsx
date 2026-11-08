@@ -1,15 +1,8 @@
 import { useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import classNames from 'classnames'
-import {
-  Cog6ToothIcon,
-  LockClosedIcon,
-  LockOpenIcon,
-  PlusIcon,
-  TrashIcon,
-} from '@heroicons/react/20/solid'
+import { PlusIcon } from '@heroicons/react/20/solid'
 
-import ConfirmModal from '@/components/confirm-modal'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import { usePlayers } from '@/lib/use-players'
@@ -43,12 +36,6 @@ export const Route = createFileRoute('/teams/$teamIndex')({
 function RouteComponent() {
   const navigate = useNavigate()
   const [isAddPlayerCommandPaletteOpen, setIsAddPlayerCommandPaletteOpen] =
-    useState(false)
-  const [isDraftPlayerCommandPaletteOpen, setIsDraftPlayerCommandPaletteOpen] =
-    useState(false)
-  const [isDraftSettingsModalOpen, setIsDraftSettingsModalOpen] =
-    useState(false)
-  const [isConfirmClearDraftModalOpen, setIsConfirmClearDraftModalOpen] =
     useState(false)
   const { teamIndex: teamIndexParam } = Route.useParams()
   const teamIndex = Number(teamIndexParam)
@@ -98,12 +85,8 @@ function RouteComponent() {
   const addPlayer = (player: Player) => {
     addPlayerToTeam({ player, teamIndex })
   }
-  const draftPlayer = (player: Player) => {
-    addPlayerToDraft({ player, teamIndex })
-  }
 
   const { name, players, draft } = team
-  const [newDraft, setNewDraft] = useState(draft)
   return (
     <>
       <main className='flex grow flex-col gap-4 p-4'>
@@ -119,54 +102,14 @@ function RouteComponent() {
             })
           }}
         />
-        <div className='flex'>
-          <h2 className='grow'>draft</h2>
-          <div className='flex space-x-6'>
-            <button
-              className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
-              onClick={() => {
-                setIsConfirmClearDraftModalOpen(true)
-              }}
-              disabled={!draft || draft.complete}
-            >
-              <TrashIcon className='h-6 w-6' />
-            </button>
-            <button
-              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-              onClick={() => {
-                toggleCompleteDraft(teamIndex)
-              }}
-              disabled={!draft}
-            >
-              {draft?.complete ? (
-                <LockClosedIcon className='h-6 w-6' />
-              ) : (
-                <LockOpenIcon className='h-6 w-6' />
-              )}
-            </button>
-            <button
-              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-              onClick={() => {
-                setNewDraft(draft)
-                setIsDraftSettingsModalOpen(true)
-              }}
-              disabled={!draft || draft.complete}
-            >
-              <Cog6ToothIcon className='h-6 w-6' />
-            </button>
-            <button
-              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-              type='button'
-              onClick={() => {
-                setIsDraftPlayerCommandPaletteOpen(true)
-              }}
-              disabled={draft?.complete}
-            >
-              <PlusIcon className='h-6 w-6' />
-            </button>
-          </div>
-        </div>
-        {draft && <Draft draft={draft} />}
+        <Draft
+          draft={draft}
+          teamIndex={teamIndex}
+          addPlayerToDraft={addPlayerToDraft}
+          toggleCompleteDraft={toggleCompleteDraft}
+          overwriteDraft={overwriteDraft}
+          playerList={playerList}
+        />
       </main>
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
@@ -208,81 +151,6 @@ function RouteComponent() {
           </button>
         </div>
       </footer>
-      <Modal
-        title='draft settings'
-        isOpen={isDraftSettingsModalOpen}
-        setIsOpen={setIsDraftSettingsModalOpen}
-      >
-        <label htmlFor='teams'>
-          teams
-          <input
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            type='number'
-            value={newDraft?.teams}
-            onChange={e => {
-              setNewDraft(prev => {
-                if (!prev) {
-                  return prev
-                }
-                return {
-                  ...prev,
-                  teams: Number(e.target.value),
-                }
-              })
-            }}
-          />
-        </label>
-        <label htmlFor='pick'>
-          pick
-          <input
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            type='number'
-            value={newDraft?.pick}
-            onChange={e => {
-              setNewDraft(prev => {
-                if (!prev) {
-                  return prev
-                }
-                return {
-                  ...prev,
-                  pick: Number(e.target.value),
-                }
-              })
-            }}
-          />
-        </label>
-        <button
-          className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-          type='button'
-          onClick={() => {
-            if (!newDraft || !draft) {
-              return
-            }
-            overwriteDraft({
-              teamIndex,
-              draft: {
-                ...draft,
-                teams: newDraft.teams,
-                pick: newDraft.pick,
-              },
-            })
-          }}
-          disabled={
-            newDraft?.teams === draft?.teams && newDraft?.pick === draft?.pick
-          }
-        >
-          save
-        </button>
-      </Modal>
-      <ConfirmModal
-        isOpen={isConfirmClearDraftModalOpen}
-        setIsOpen={setIsConfirmClearDraftModalOpen}
-        action={() => {
-          overwriteDraft({ teamIndex, draft: undefined })
-        }}
-      >
-        clear draft?
-      </ConfirmModal>
       <CoreCommandPalette
         toggleIsOpenHotKey={'A'}
         placeholder='add player'
@@ -321,23 +189,6 @@ function RouteComponent() {
           })),
         ]}
       />
-      {!draft?.complete && (
-        <CoreCommandPalette
-          toggleIsOpenHotKey={'D'}
-          placeholder='draft player'
-          commands={[
-            ...playerList.map((player, index) => ({
-              id: `draft-player-${index}`,
-              title: `draft ${player.name} - ${player.position.join(', ')}`,
-              action: () => {
-                draftPlayer(player)
-              },
-            })),
-          ]}
-          isOpen={isDraftPlayerCommandPaletteOpen}
-          setIsOpen={setIsDraftPlayerCommandPaletteOpen}
-        />
-      )}
       <Modal
         title='create new player'
         isOpen={isAddNewPlayerModalOpen}
