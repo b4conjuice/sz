@@ -19,9 +19,10 @@ import {
   fillEmptySlotsWithPlayers,
   getRosterSize,
   isIrSlot,
+  recordTransactions,
   resizeSlots,
 } from '@/lib/use-teams'
-import type { Slot, Team as TeamType } from '@/lib/use-teams'
+import type { Slot, Team as TeamType, Transaction } from '@/lib/use-teams'
 
 export function Roster({
   team,
@@ -161,7 +162,22 @@ export function Roster({
     if (!fromSlot || !toSlot) {
       return
     }
-    saveTeam({
+    const fromPlayer = players.find(player => player.name === fromSlot.player)
+    const toPlayer = players.find(player => player.name === toSlot.player)
+    const transactions: Array<Omit<Transaction, 'date'>> = []
+    if (fromPlayer && isIrSlot(fromSlot) !== isIrSlot(toSlot)) {
+      transactions.push({
+        type: isIrSlot(fromSlot) ? 'move-out-of-ir' : 'move-into-ir',
+        players: [fromPlayer],
+      })
+    }
+    if (toPlayer && isIrSlot(fromSlot) !== isIrSlot(toSlot)) {
+      transactions.push({
+        type: isIrSlot(fromSlot) ? 'move-into-ir' : 'move-out-of-ir',
+        players: [toPlayer],
+      })
+    }
+    const newTeam = {
       ...team,
       slots: effectiveSlots.map((slot, index) => {
         if (index === fromIndex) {
@@ -172,7 +188,12 @@ export function Roster({
         }
         return slot
       }),
-    })
+    }
+    saveTeam(
+      transactions.length > 0
+        ? recordTransactions(newTeam, transactions)
+        : newTeam
+    )
     setMovingSlotIndex(null)
   }
   const dropPlayerAndMove = (fromIndex: number | null, toIndex: number) => {
@@ -184,7 +205,16 @@ export function Roster({
     if (!fromSlot || !toSlot) {
       return
     }
-    saveTeam({
+    const fromPlayer = players.find(player => player.name === fromSlot.player)
+    const droppedPlayer = players.find(player => player.name === toSlot.player)
+    const transactions: Array<Omit<Transaction, 'date'>> = []
+    if (fromPlayer && isIrSlot(fromSlot) && !isIrSlot(toSlot)) {
+      transactions.push({ type: 'move-out-of-ir', players: [fromPlayer] })
+    }
+    if (droppedPlayer) {
+      transactions.push({ type: 'drop', players: [droppedPlayer] })
+    }
+    const newTeam = {
       ...team,
       players: players.filter(player => player.name !== toSlot.player),
       slots: effectiveSlots.map((slot, index) => {
@@ -196,7 +226,12 @@ export function Roster({
         }
         return slot
       }),
-    })
+    }
+    saveTeam(
+      transactions.length > 0
+        ? recordTransactions(newTeam, transactions)
+        : newTeam
+    )
     setMovingSlotIndex(null)
   }
   return (
@@ -316,7 +351,7 @@ export function Roster({
                   <button
                     className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
                     onClick={() => {
-                      saveTeam({
+                      const newTeam = {
                         ...team,
                         players: players.filter(
                           currentPlayer => currentPlayer.name !== slot.player
@@ -326,7 +361,14 @@ export function Roster({
                             ? { ...currentSlot, player: EMPTY_SLOT_PLAYER }
                             : currentSlot
                         ),
-                      })
+                      }
+                      saveTeam(
+                        player
+                          ? recordTransactions(newTeam, [
+                              { type: 'drop', players: [player] },
+                            ])
+                          : newTeam
+                      )
                     }}
                   >
                     <TrashIcon className='h-6 w-6' />

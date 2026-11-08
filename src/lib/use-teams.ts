@@ -18,14 +18,37 @@ export type Slot = {
   player: string
 }
 
+export type Transaction = {
+  date: Date
+  type: 'add' | 'add/drop' | 'drop' | 'move-into-ir' | 'move-out-of-ir'
+  players: Player[]
+}
+
+type NewTransaction = Omit<Transaction, 'date'> & { date?: Date }
+
 export type Team = {
   name: string
   players: Player[]
   draft?: Draft
   slots?: Slot[]
+  transactions?: Transaction[]
 }
 
 export const EMPTY_SLOT_PLAYER = 'empty'
+
+export const recordTransactions = (
+  team: Team,
+  transactions: NewTransaction[]
+): Team => ({
+  ...team,
+  transactions: [
+    ...(team.transactions ?? []),
+    ...transactions.map(({ date = new Date(), ...transaction }) => ({
+      ...transaction,
+      date,
+    })),
+  ],
+})
 
 export type SlotTemplate = Omit<Slot, 'player'>
 
@@ -287,6 +310,9 @@ export function useTeams() {
         team.slots ?? DEFAULT_SLOTS,
         team.players
       )
+      newTeams[teamIndex] = recordTransactions(team, [
+        { type: 'add', players: [player] },
+      ])
 
       return newTeams
     })
@@ -303,6 +329,9 @@ export function useTeams() {
     setTeams(prev => {
       const newTeams = [...prev]
       const team = newTeams[teamIndex]
+      const replacedPlayer = team.players.find(
+        currentPlayer => currentPlayer.name === replacedPlayerName
+      )
       team.players = team.players
         .filter(currentPlayer => currentPlayer.name !== replacedPlayerName)
         .concat(player)
@@ -311,6 +340,11 @@ export function useTeams() {
         player,
         replacedPlayerName
       )
+      newTeams[teamIndex] = recordTransactions(team, [
+        replacedPlayer
+          ? { type: 'add/drop', players: [player, replacedPlayer] }
+          : { type: 'add', players: [player] },
+      ])
       return newTeams
     })
   }
@@ -332,6 +366,11 @@ export function useTeams() {
             ? { ...slot, player: EMPTY_SLOT_PLAYER }
             : slot
         )
+      }
+      if (player) {
+        newTeams[teamIndex] = recordTransactions(team, [
+          { type: 'drop', players: [player] },
+        ])
       }
       return newTeams
     })

@@ -4,7 +4,7 @@ import Menu from '@/components/menu'
 import { usePlayers } from '@/lib/use-players'
 import { getTeams, useTeams } from '@/lib/use-teams'
 import type { Team } from '@/lib/use-teams'
-import { Depth, Draft, Roster } from '@/components/team'
+import { Depth, Draft, Roster, TransactionHistory } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
 import ImportExportModal from '@/components/import-export-modal'
 
@@ -69,6 +69,7 @@ function RouteComponent() {
             })
           }}
         />
+        <TransactionHistory transactions={team.transactions} />
         <Draft
           draft={draft}
           teamIndex={teamIndex}
