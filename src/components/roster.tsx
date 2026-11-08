@@ -3,10 +3,14 @@ import classNames from 'classnames'
 import {
   ArrowsRightLeftIcon,
   Cog6ToothIcon,
+  PlusIcon,
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid'
 
+import CoreCommandPalette from '@/components/command-palette'
+import Modal from '@/components/modal'
+import type { Player } from '@/lib/use-players'
 import {
   DEFAULT_SLOTS,
   EMPTY_SLOT_PLAYER,
@@ -18,18 +22,59 @@ import {
   resizeSlots,
 } from '@/lib/use-teams'
 import type { Slot, Team as TeamType } from '@/lib/use-teams'
-import Modal from '@/components/modal'
 
 export function Roster({
   team,
+  teamIndex,
+  playerList,
+  addPlayerToTeam,
+  savePlayer,
   saveTeam,
 }: {
   team: TeamType
+  teamIndex: number
+  playerList: Player[]
+  addPlayerToTeam: (args: { teamIndex: number; player: Player }) => void
+  savePlayer: (args: { player: Player; index?: number }) => void
   saveTeam: (team: TeamType) => void
 }) {
   const [isRosterSettingsModalOpen, setIsRosterSettingsModalOpen] =
     useState(false)
+  const [isAddPlayerCommandPaletteOpen, setIsAddPlayerCommandPaletteOpen] =
+    useState(false)
+  const [isAddNewPlayerModalOpen, setIsAddNewPlayerModalOpen] = useState(false)
+  const [newPlayer, setNewPlayer] = useState<Player>({
+    name: '',
+    team: '',
+    position: [],
+  })
   const [movingSlotIndex, setMovingSlotIndex] = useState<number | null>(null)
+  const positions = [
+    ...new Set([
+      'PG',
+      'SG',
+      'SF',
+      'PF',
+      'C',
+      ...playerList.reduce(
+        (currentAllTags: string[], currentPlayer: Player) => {
+          const { position } = currentPlayer
+          return [...currentAllTags, ...position]
+        },
+        []
+      ),
+    ]),
+  ]
+  const playerTeams = [
+    ...new Set(
+      playerList.reduce((currentTeams: string[], currentPlayer: Player) => {
+        return [...currentTeams, currentPlayer.team]
+      }, [])
+    ),
+  ].filter(playerTeam => Boolean(playerTeam))
+  const addPlayer = (player: Player) => {
+    addPlayerToTeam({ player, teamIndex })
+  }
   const { players, draft } = team
   const slots = team.slots ?? DEFAULT_SLOTS
   const draftRosterSize = draft?.complete ? draft.players.length : null
@@ -132,6 +177,15 @@ export function Roster({
             }}
           >
             <Cog6ToothIcon className='h-6 w-6' />
+          </button>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              setIsAddPlayerCommandPaletteOpen(true)
+            }}
+          >
+            <PlusIcon className='h-6 w-6' />
           </button>
         </div>
       </div>
@@ -327,6 +381,124 @@ export function Roster({
         >
           save
         </button>
+      </Modal>
+      <CoreCommandPalette
+        toggleIsOpenHotKey={'A'}
+        placeholder='add player'
+        commands={[
+          {
+            id: 'add-new-player',
+            title: 'create new player',
+            action: () => {
+              setIsAddNewPlayerModalOpen(true)
+            },
+          },
+          ...playerList.map((player, index) => ({
+            id: `add-player-${index}`,
+            title: `add ${player.name} - ${player.position.join(', ')}`,
+            action: () => {
+              addPlayer(player)
+            },
+          })),
+        ]}
+        isOpen={isAddPlayerCommandPaletteOpen}
+        setIsOpen={setIsAddPlayerCommandPaletteOpen}
+      />
+      <Modal
+        title='create new player'
+        isOpen={isAddNewPlayerModalOpen}
+        setIsOpen={setIsAddNewPlayerModalOpen}
+      >
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='name'
+          value={newPlayer.name}
+          onChange={e => {
+            setNewPlayer(prev => ({
+              ...prev,
+              name: e.target.value,
+            }))
+          }}
+        />
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='team'
+          value={newPlayer.team}
+          onChange={e => {
+            setNewPlayer(prev => ({
+              ...prev,
+              team: e.target.value,
+            }))
+          }}
+        />
+        {playerTeams.length > 0 && (
+          <select
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            value={playerTeams.includes(newPlayer.team) ? newPlayer.team : ''}
+            onChange={e => {
+              setNewPlayer(prev => ({
+                ...prev,
+                team: e.target.value,
+              }))
+            }}
+          >
+            <option value=''>select team</option>
+            {playerTeams.map(playerTeam => (
+              <option key={playerTeam} value={playerTeam}>
+                {playerTeam}
+              </option>
+            ))}
+          </select>
+        )}
+        <ul className='flex gap-2 overflow-x-auto'>
+          {positions.map(pos => (
+            <li key={pos}>
+              <button
+                className={classNames(
+                  'bg-cb-blue rounded-lg border p-2',
+                  newPlayer.position.includes(pos)
+                    ? 'border-cb-pink'
+                    : 'border-cb-blue'
+                )}
+                type='button'
+                onClick={() => {
+                  const newPositionIndex = newPlayer.position.findIndex(
+                    p => p === pos
+                  )
+                  const newPosition = [...newPlayer.position]
+                  if (newPositionIndex > -1) {
+                    newPosition.splice(newPositionIndex, 1)
+                  } else {
+                    newPosition.push(pos)
+                  }
+                  setNewPlayer(prev => ({
+                    ...prev,
+                    position: newPosition,
+                  }))
+                }}
+              >
+                {pos}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className='flex items-center gap-4'>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              savePlayer({ player: newPlayer })
+              addPlayer(newPlayer)
+              setNewPlayer({ name: '', team: '', position: [] })
+              setIsAddNewPlayerModalOpen(false)
+            }}
+            disabled={newPlayer.name === '' || newPlayer.team === ''}
+          >
+            save
+          </button>
+        </div>
       </Modal>
     </>
   )
