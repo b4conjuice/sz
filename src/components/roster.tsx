@@ -28,6 +28,7 @@ export function Roster({
   teamIndex,
   playerList,
   addPlayerToTeam,
+  deletePlayerByIndex,
   savePlayer,
   saveTeam,
 }: {
@@ -35,6 +36,10 @@ export function Roster({
   teamIndex: number
   playerList: Player[]
   addPlayerToTeam: (args: { teamIndex: number; player: Player }) => void
+  deletePlayerByIndex: (args: {
+    teamIndex: number
+    playerIndex: number
+  }) => void
   savePlayer: (args: { player: Player; index?: number }) => void
   saveTeam: (team: TeamType) => void
 }) {
@@ -403,6 +408,22 @@ export function Roster({
         ]}
         isOpen={isAddPlayerCommandPaletteOpen}
         setIsOpen={setIsAddPlayerCommandPaletteOpen}
+      />
+      <CoreCommandPalette
+        toggleIsOpenHotKey={'R'}
+        placeholder='drop player'
+        commands={[
+          ...players.map((player, index) => ({
+            id: `drop-player-${index}`,
+            title: `draft ${player.name} - ${player.position.join(', ')}`,
+            action: () => {
+              deletePlayerByIndex({
+                teamIndex,
+                playerIndex: index,
+              })
+            },
+          })),
+        ]}
       />
       <Modal
         title='create new player'

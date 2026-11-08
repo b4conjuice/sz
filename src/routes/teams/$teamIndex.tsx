@@ -4,7 +4,6 @@ import Menu from '@/components/menu'
 import { usePlayers } from '@/lib/use-players'
 import { getTeams, useTeams } from '@/lib/use-teams'
 import type { Team } from '@/lib/use-teams'
-import CoreCommandPalette from '@/components/command-palette'
 import { Depth, Draft, Roster } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
 import ImportExportModal from '@/components/import-export-modal'
@@ -59,6 +58,7 @@ function RouteComponent() {
           teamIndex={teamIndex}
           playerList={playerList}
           addPlayerToTeam={addPlayerToTeam}
+          deletePlayerByIndex={deletePlayerByIndex}
           savePlayer={savePlayer}
           saveTeam={newTeam => {
             saveTeam({
@@ -107,22 +107,6 @@ function RouteComponent() {
           />
         </div>
       </footer>
-      <CoreCommandPalette
-        toggleIsOpenHotKey={'R'}
-        placeholder='drop player'
-        commands={[
-          ...players.map((player, index) => ({
-            id: `drop-player-${index}`,
-            title: `draft ${player.name} - ${player.position.join(', ')}`,
-            action: () => {
-              deletePlayerByIndex({
-                teamIndex,
-                playerIndex: index,
-              })
-            },
-          })),
-        ]}
-      />
     </>
   )
 }
