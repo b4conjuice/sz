@@ -20,7 +20,7 @@ import {
 import type { Slot, Team as TeamType } from '@/lib/use-teams'
 import Modal from '@/components/modal'
 
-export default function Roster({
+export function Roster({
   team,
   saveTeam,
 }: {

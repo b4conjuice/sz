@@ -12,14 +12,12 @@ import {
 import ConfirmModal from '@/components/confirm-modal'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
-import Roster from '@/components/roster'
-import SearchPlayer from '@/components/search-player'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { getTeams, useTeams } from '@/lib/use-teams'
 import type { Team } from '@/lib/use-teams'
 import CoreCommandPalette from '@/components/command-palette'
-import { Depth, Draft } from '@/components/team'
+import { Depth, Draft, Roster } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
 import ImportExportModal from '@/components/import-export-modal'
 
@@ -42,47 +40,6 @@ export const Route = createFileRoute('/teams/$teamIndex')({
   }),
 })
 
-function AddPlayer({
-  addPlayer,
-  disabledPlayers,
-  onPlayerAdded,
-}: {
-  addPlayer: (player: Player) => void
-  disabledPlayers?: Player[]
-  onPlayerAdded?: () => void
-}) {
-  const [playerToBeAdded, setPlayerToBeAdded] = useState<Player | null>(null)
-  const playerSelected = playerToBeAdded !== null
-  return (
-    <>
-      <SearchPlayer
-        onSelectPlayer={player => {
-          setPlayerToBeAdded(player)
-        }}
-        disabledPlayers={disabledPlayers}
-      />
-      <div className='flex items-center gap-4'>
-        <button
-          className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-          type='button'
-          onClick={() => {
-            if (playerSelected) {
-              addPlayer(playerToBeAdded)
-              setPlayerToBeAdded(null)
-              if (onPlayerAdded) {
-                onPlayerAdded()
-              }
-            }
-          }}
-          disabled={!playerSelected}
-        >
-          add{playerSelected ? ` ${playerToBeAdded.name}` : ''}
-        </button>
-      </div>
-    </>
-  )
-}
-
 function RouteComponent() {
   const navigate = useNavigate()
   const [isAddPlayerCommandPaletteOpen, setIsAddPlayerCommandPaletteOpen] =
@@ -101,7 +58,6 @@ function RouteComponent() {
     addPlayerToTeam,
     deletePlayerByIndex,
     addPlayerToDraft,
-    deletePlayerFromDraftByIndex,
     toggleCompleteDraft,
     overwriteDraft,
   } = useTeams()
