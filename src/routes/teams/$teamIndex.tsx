@@ -207,6 +207,7 @@ function RouteComponent() {
             <button
               className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
               onClick={() => {
+                setNewDraft(draft)
                 setIsDraftSettingsModalOpen(true)
               }}
               disabled={!draft || draft.complete}
@@ -280,6 +281,9 @@ function RouteComponent() {
             value={newDraft?.teams}
             onChange={e => {
               setNewDraft(prev => {
+                if (!prev) {
+                  return prev
+                }
                 return {
                   ...prev,
                   teams: Number(e.target.value),
@@ -296,6 +300,9 @@ function RouteComponent() {
             value={newDraft?.pick}
             onChange={e => {
               setNewDraft(prev => {
+                if (!prev) {
+                  return prev
+                }
                 return {
                   ...prev,
                   pick: Number(e.target.value),
@@ -308,9 +315,16 @@ function RouteComponent() {
           className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
           type='button'
           onClick={() => {
+            if (!newDraft || !draft) {
+              return
+            }
             overwriteDraft({
               teamIndex,
-              draft: newDraft,
+              draft: {
+                ...draft,
+                teams: newDraft.teams,
+                pick: newDraft.pick,
+              },
             })
           }}
           disabled={
