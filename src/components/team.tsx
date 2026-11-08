@@ -10,7 +10,7 @@ export function EditTeam({
   team: TeamType
   saveTeam: (team: TeamType) => void
 }) {
-  const { name, players } = team
+  const { name, players, slots } = team
   const [newTeamName, setNewTeamName] = useState(name)
   const [newPlayers, setNewPlayers] = useState(players)
   return (
@@ -48,6 +48,7 @@ export function EditTeam({
             const newTeam = {
               name: newTeamName,
               players: newPlayers,
+              slots,
             }
             saveTeam(newTeam)
           }}

@@ -5,7 +5,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
-import { useTeams } from '@/lib/use-teams'
+import { DEFAULT_SLOTS, useTeams } from '@/lib/use-teams'
 import ConfirmModal from '@/components/confirm-modal'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
@@ -124,6 +124,7 @@ function RouteComponent() {
                     pick: 1,
                     complete: false,
                   },
+                  slots: DEFAULT_SLOTS,
                 },
               })
               setIsAddTeamModalOpen(false)

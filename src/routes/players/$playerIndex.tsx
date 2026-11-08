@@ -7,7 +7,7 @@ import { ArrowDownOnSquareIcon, PlusIcon } from '@heroicons/react/20/solid'
 import Menu from '@/components/menu'
 import { getPlayers, usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
-import { useTeams } from '@/lib/use-teams'
+import { DEFAULT_SLOTS, useTeams } from '@/lib/use-teams'
 import ImportExportModal from '@/components/import-export-modal'
 import Modal from '@/components/modal'
 import { DEFAULT_TITLE } from '@/routes/__root'
@@ -275,6 +275,7 @@ function RouteComponent() {
                     pick: 1,
                     complete: false,
                   },
+                  slots: DEFAULT_SLOTS,
                 },
               })
               setIsAddTeamModalOpen(false)

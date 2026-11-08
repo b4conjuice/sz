@@ -12,6 +12,7 @@ import {
 import ConfirmModal from '@/components/confirm-modal'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
+import Roster from '@/components/roster'
 import SearchPlayer from '@/components/search-player'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
@@ -90,7 +91,6 @@ function RouteComponent() {
     useState(false)
   const [isDraftSettingsModalOpen, setIsDraftSettingsModalOpen] =
     useState(false)
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [isConfirmClearDraftModalOpen, setIsConfirmClearDraftModalOpen] =
     useState(false)
   const { teamIndex: teamIndexParam } = Route.useParams()
@@ -135,7 +135,7 @@ function RouteComponent() {
       }, [])
     ),
   ].filter(team => Boolean(team))
-  const team = teams[teamIndex]
+  const team = teams.at(teamIndex)
   if (!team) {
     return <p>team does not exist</p>
   }
@@ -147,11 +147,6 @@ function RouteComponent() {
   }
 
   const { name, players, draft } = team
-  const [playerToBeDeletedIndex, setPlayerToBeDeletedIndex] = useState<
-    number | null
-  >(null)
-  const playerToBeDeleted =
-    playerToBeDeletedIndex !== null ? players[playerToBeDeletedIndex] : null
   const [newDraft, setNewDraft] = useState(draft)
   return (
     <>
@@ -159,26 +154,15 @@ function RouteComponent() {
         <h2>{name}</h2>
         <h2>depth</h2>
         <Depth team={team} />
-        <h2>roster</h2>
-        <ul className='divide-cb-dusty-blue divide-y'>
-          {players.map((player, playerIndex) => (
-            <li key={playerIndex} className='flex py-4 first:pt-0'>
-              <span className='flex grow gap-2'>
-                <span>{player.name}</span>
-                <span>{player.position.join(', ')}</span>
-              </span>
-              <button
-                className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
-                onClick={() => {
-                  setPlayerToBeDeletedIndex(playerIndex)
-                  setIsConfirmModalOpen(true)
-                }}
-              >
-                <TrashIcon className='h-6 w-6' />
-              </button>
-            </li>
-          ))}
-        </ul>
+        <Roster
+          team={team}
+          saveTeam={newTeam => {
+            saveTeam({
+              team: newTeam,
+              index: teamIndex,
+            })
+          }}
+        />
         <div className='flex'>
           <h2 className='grow'>draft</h2>
           <div className='flex space-x-6'>
@@ -334,20 +318,6 @@ function RouteComponent() {
           save
         </button>
       </Modal>
-      {playerToBeDeletedIndex !== null && playerToBeDeleted !== null && (
-        <ConfirmModal
-          isOpen={isConfirmModalOpen}
-          setIsOpen={setIsConfirmModalOpen}
-          action={() => {
-            deletePlayerByIndex({
-              teamIndex,
-              playerIndex: playerToBeDeletedIndex,
-            })
-          }}
-        >
-          drop {playerToBeDeleted.name}?
-        </ConfirmModal>
-      )}
       <ConfirmModal
         isOpen={isConfirmClearDraftModalOpen}
         setIsOpen={setIsConfirmClearDraftModalOpen}
