@@ -10,6 +10,7 @@ const defaultPlayers = [
 
 export type Player = {
   name: string
+  nickname?: string
   team: string
   position: string[]
 }

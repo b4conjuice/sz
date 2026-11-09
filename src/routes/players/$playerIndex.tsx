@@ -103,6 +103,18 @@ function RouteComponent() {
         <input
           type='text'
           className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+          placeholder='nickname'
+          value={newPlayer.nickname ?? ''}
+          onChange={e => {
+            setNewPlayer(prev => ({
+              ...prev,
+              nickname: e.target.value,
+            }))
+          }}
+        />
+        <input
+          type='text'
+          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
           placeholder='team'
           value={newPlayer.team}
           onChange={e => {
@@ -155,6 +167,7 @@ function RouteComponent() {
             }}
             disabled={
               newPlayer.name === player.name &&
+              (newPlayer.nickname ?? '') === (player.nickname ?? '') &&
               newPlayer.team === player.team &&
               listsAreEqual(newPlayer.position, player.position)
             }
