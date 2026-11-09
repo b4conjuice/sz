@@ -523,21 +523,23 @@ export function Roster({
             setPendingPlayer(null)
           }
         }}
-        commands={players.map((player, index) => ({
-          id: `replace-player-${index}`,
-          title: `drop ${player.name} - ${player.position.join(', ')}`,
-          action: () => {
-            if (!pendingPlayer) {
-              return
-            }
-            replacePlayerOnTeam({
-              teamIndex,
-              player: pendingPlayer,
-              replacedPlayerName: player.name,
-            })
-            setPendingPlayer(null)
-          },
-        }))}
+        commands={players
+          .filter(player => !irPlayerNames.has(player.name))
+          .map((player, index) => ({
+            id: `replace-player-${index}`,
+            title: `drop ${player.name} - ${player.position.join(', ')}`,
+            action: () => {
+              if (!pendingPlayer) {
+                return
+              }
+              replacePlayerOnTeam({
+                teamIndex,
+                player: pendingPlayer,
+                replacedPlayerName: player.name,
+              })
+              setPendingPlayer(null)
+            },
+          }))}
       />
       <CoreCommandPalette
         toggleIsOpenHotKey={'R'}
