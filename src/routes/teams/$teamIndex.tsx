@@ -141,7 +141,7 @@ function RouteComponent() {
           </>
         ) : (
           <>
-            <Depth players={players} />
+            <Depth players={players} slots={team.slots} />
             <Roster
               team={team}
               teamIndex={teamIndex}

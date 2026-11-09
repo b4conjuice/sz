@@ -2,6 +2,8 @@ import { Link } from '@tanstack/react-router'
 
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
+import { isIrSlot } from '@/lib/use-teams'
+import type { Slot } from '@/lib/use-teams'
 
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
 
@@ -13,10 +15,22 @@ const displayPlayerName = (player: Player) => {
   )
 }
 
-export function Depth({ players }: { players: Player[] }) {
+export function Depth({
+  players,
+  slots = [],
+}: {
+  players: Player[]
+  slots?: Slot[]
+}) {
   const { players: allPlayers } = usePlayers()
+  const irPlayerNames = new Set(
+    slots.filter(isIrSlot).map(slot => slot.player)
+  )
+  const activePlayers = players.filter(
+    player => !irPlayerNames.has(player.name)
+  )
   const getPlayersByPosition = (position: string) => {
-    const playersByPosition = players
+    const playersByPosition = activePlayers
       .map(player => {
         const index = allPlayers.findIndex(p => p.name === player.name)
         return {
