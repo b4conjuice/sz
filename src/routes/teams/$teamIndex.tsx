@@ -1,18 +1,25 @@
 import { useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
+  ArrowUpTrayIcon,
   PencilSquareIcon,
   TableCellsIcon,
   UserGroupIcon,
 } from '@heroicons/react/20/solid'
 
 import Menu from '@/components/menu'
+import ImportExport from '@/components/import-export'
 import { usePlayers } from '@/lib/use-players'
+import type { Player } from '@/lib/use-players'
 import { getTeams, useTeams } from '@/lib/use-teams'
-import type { Team } from '@/lib/use-teams'
+import type {
+  Draft as DraftType,
+  Slot,
+  Team,
+  Transaction,
+} from '@/lib/use-teams'
 import { Depth, Draft, Roster, TransactionHistory } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
-import ImportExportModal from '@/components/import-export-modal'
 
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
@@ -33,13 +40,13 @@ export const Route = createFileRoute('/teams/$teamIndex')({
   }),
 })
 
-const TABS = ['default', 'history', 'draft'] as const
+const TABS = ['default', 'history', 'draft', 'import-export'] as const
 type Tab = (typeof TABS)[number]
 
 function RouteComponent() {
   // const initialTab = searchParams.get('tab') as Tab
   const initialTab = 'default' // TODO:
-  const [tab, setTab] = useState<Tab | null>(initialTab ?? 'default')
+  const [tab, setTab] = useState<Tab | null>(initialTab)
   const navigate = useNavigate()
   const { teamIndex: teamIndexParam } = Route.useParams()
   const teamIndex = Number(teamIndexParam)
@@ -60,6 +67,12 @@ function RouteComponent() {
   }
 
   const { name, players, draft } = team
+  const updateTeam = (updates: Partial<Team>) => {
+    saveTeam({
+      index: teamIndex,
+      team: { ...team, ...updates },
+    })
+  }
   return (
     <>
       <main className='flex grow flex-col gap-4 p-4'>
@@ -78,6 +91,54 @@ function RouteComponent() {
           </>
         ) : tab === 'history' ? (
           <TransactionHistory transactions={team.transactions} />
+        ) : tab === 'import-export' ? (
+          <>
+            <section className='flex flex-col gap-3'>
+              <h3>team</h3>
+              <ImportExport
+                object={team}
+                setObject={(newTeam: Team) => {
+                  updateTeam(newTeam)
+                }}
+              />
+            </section>
+            <section className='flex flex-col gap-3'>
+              <h3>players</h3>
+              <ImportExport
+                object={players}
+                setObject={(newPlayers: Player[]) => {
+                  updateTeam({ players: newPlayers })
+                }}
+              />
+            </section>
+            <section className='flex flex-col gap-3'>
+              <h3>slots</h3>
+              <ImportExport
+                object={team.slots}
+                setObject={(newSlots: Slot[]) => {
+                  updateTeam({ slots: newSlots })
+                }}
+              />
+            </section>
+            <section className='flex flex-col gap-3'>
+              <h3>draft</h3>
+              <ImportExport
+                object={draft}
+                setObject={(newDraft: DraftType | undefined) => {
+                  updateTeam({ draft: newDraft })
+                }}
+              />
+            </section>
+            <section className='flex flex-col gap-3'>
+              <h3>transactions</h3>
+              <ImportExport
+                object={team.transactions}
+                setObject={(newTransactions: Transaction[] | undefined) => {
+                  updateTeam({ transactions: newTransactions })
+                }}
+              />
+            </section>
+          </>
         ) : (
           <>
             <Depth players={players} />
@@ -119,15 +180,16 @@ function RouteComponent() {
           />
         </div>
         <div className='flex space-x-6'>
-          <ImportExportModal
-            object={team}
-            setObject={(newTeam: Team) => {
-              saveTeam({
-                index: teamIndex,
-                team: newTeam,
-              })
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:text-cb-light-blue disabled:pointer-events-none'
+            type='button'
+            onClick={() => {
+              setTab('import-export')
             }}
-          />
+            disabled={tab === 'import-export'}
+          >
+            <ArrowUpTrayIcon className='h-6 w-6' />
+          </button>
           <button
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:text-cb-light-blue disabled:pointer-events-none'
             type='button'
