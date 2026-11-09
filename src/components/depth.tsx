@@ -5,18 +5,25 @@ import type { Player } from '@/lib/use-players'
 
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
 
-const displayPlayerName = (name: string) => {
-  return name.split(' ').at(1)?.toLowerCase() ?? name.toLowerCase()
+const displayPlayerName = (player: Player) => {
+  return (
+    player.nickname ??
+    player.name.split(' ').at(1)?.toLowerCase() ??
+    player.name.toLowerCase()
+  )
 }
 
 export function Depth({ players }: { players: Player[] }) {
   const { players: allPlayers } = usePlayers()
   const getPlayersByPosition = (position: string) => {
     const playersByPosition = players
-      .map(player => ({
-        player,
-        index: allPlayers.findIndex(p => p.name === player.name),
-      }))
+      .map(player => {
+        const index = allPlayers.findIndex(p => p.name === player.name)
+        return {
+          player: index > -1 ? allPlayers[index] : player,
+          index,
+        }
+      })
       .filter(({ player }) => player.position.some(pos => pos === position))
     return playersByPosition
   }
@@ -52,10 +59,10 @@ export function Depth({ players }: { players: Player[] }) {
                           params={{ playerIndex: String(index) }}
                           className='text-cb-pink hover:text-cb-pink/75'
                         >
-                          {displayPlayerName(player.name)}
+                          {displayPlayerName(player)}
                         </Link>
                       ) : (
-                        displayPlayerName(player.name)
+                        displayPlayerName(player)
                       )}
                     </td>
                   ))}
