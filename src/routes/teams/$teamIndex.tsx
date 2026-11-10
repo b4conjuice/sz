@@ -173,20 +173,29 @@ function RouteComponent() {
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
           <Menu
-            navigationCommands={players.map(player => ({
-              id: `go-${player.name}`,
-              title: `go ${player.name}`,
-              action: () => {
-                navigate({
-                  to: '/players/$playerIndex',
-                  params: {
-                    playerIndex: String(
-                      playerList.findIndex(p => p.name === player.name)
-                    ),
-                  },
-                })
-              },
-            }))}
+            navigationCommands={[
+              ...TABS.filter(tabOption => tabOption !== tab).map(tabOption => ({
+                id: `switch-tab-team-${tabOption}`,
+                title: `switch to ${tabOption === 'default' ? 'roster' : tabOption} tab `,
+                action: () => {
+                  setTab(tabOption)
+                },
+              })),
+              ...players.map(player => ({
+                id: `go-${player.name}`,
+                title: `go ${player.name}`,
+                action: () => {
+                  navigate({
+                    to: '/players/$playerIndex',
+                    params: {
+                      playerIndex: String(
+                        playerList.findIndex(p => p.name === player.name)
+                      ),
+                    },
+                  })
+                },
+              })),
+            ]}
           />
         </div>
         <div className='flex space-x-6'>
