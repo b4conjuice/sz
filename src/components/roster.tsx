@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import classNames from 'classnames'
 import {
-  ArrowsRightLeftIcon,
+  ArrowsUpDownIcon,
   Cog6ToothIcon,
   PlusIcon,
   TrashIcon,
@@ -334,7 +334,7 @@ export function Roster({
                       setMovingSlotIndex(slotIndex)
                     }}
                   >
-                    <ArrowsRightLeftIcon className='h-6 w-6' />
+                    <ArrowsUpDownIcon className='h-6 w-6' />
                   </button>
                 )}
                 {isMovingSlot && (
