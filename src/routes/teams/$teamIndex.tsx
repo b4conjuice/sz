@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import {
   ArrowUpTrayIcon,
   PencilSquareIcon,
@@ -21,9 +20,19 @@ import type {
 import { Depth, Draft, Roster, TransactionHistory } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
+const TABS = ['default', 'history', 'draft', 'import-export'] as const
+type Tab = (typeof TABS)[number]
+
+const isTab = (value: unknown): value is Tab => TABS.includes(value as Tab)
+
 export const Route = createFileRoute('/teams/$teamIndex')({
   component: RouteComponent,
   ssr: false,
+  validateSearch: (search: Record<string, string>): { tab?: Tab } => {
+    return {
+      tab: isTab(search.tab) ? search.tab : undefined,
+    }
+  },
   loader: ({ params }) => {
     const teams = getTeams()
     const team = teams[Number(params.teamIndex)]
@@ -40,14 +49,15 @@ export const Route = createFileRoute('/teams/$teamIndex')({
   }),
 })
 
-const TABS = ['default', 'history', 'draft', 'import-export'] as const
-type Tab = (typeof TABS)[number]
-
 function RouteComponent() {
-  // const initialTab = searchParams.get('tab') as Tab
-  const initialTab = 'default' // TODO:
-  const [tab, setTab] = useState<Tab | null>(initialTab)
-  const navigate = useNavigate()
+  const { tab: tabParam } = Route.useSearch()
+  const tab = tabParam ?? 'default'
+  const navigate = Route.useNavigate()
+  const setTab = (newTab: Tab) => {
+    navigate({
+      search: { tab: newTab === 'default' ? undefined : newTab },
+    })
+  }
   const { teamIndex: teamIndexParam } = Route.useParams()
   const teamIndex = Number(teamIndexParam)
   const {
