@@ -163,23 +163,79 @@ export const resizeSlots = (slots: Slot[], size: number): Slot[] => {
   return [...resizedNormalSlots, ...irSlots]
 }
 
+const getEligibleSlotCount = (player: Player, slots: Slot[]): number =>
+  slots.filter(
+    slot =>
+      !isIrSlot(slot) &&
+      slot.eligiblePositions.some(position => player.position.includes(position))
+  ).length
+
+const getSlotPriority = (player: Player, slot: Slot): number => {
+  if (isIrSlot(slot)) {
+    return -1
+  }
+  const exactPositionIndex = player.position.findIndex(
+    position => position === slot.label
+  )
+  if (exactPositionIndex > -1) {
+    return exactPositionIndex
+  }
+  const isEligible = slot.eligiblePositions.some(position =>
+    player.position.includes(position)
+  )
+  if (!isEligible) {
+    return -1
+  }
+  if (slot.label === G_SLOT.label || slot.label === F_SLOT.label) {
+    return 10
+  }
+  if (slot.label === U_SLOT.label) {
+    return 20
+  }
+  return 30
+}
+
 export const fillSlotsWithPlayers = (
   slots: Slot[],
   players: Player[]
 ): Slot[] => {
   const resizedSlots = resizeSlots(slots, players.length)
-  let playerIndex = 0
-  return resizedSlots.map(slot => {
-    if (isIrSlot(slot)) {
-      return slot
+  const irSlots = resizedSlots.filter(isIrSlot)
+  const filledSlots: Slot[] = resizedSlots
+    .filter(slot => !isIrSlot(slot))
+    .map(slot => ({ ...slot, player: EMPTY_SLOT_PLAYER }))
+  const sortedPlayers = [...players].sort(
+    (a, b) =>
+      getEligibleSlotCount(a, filledSlots) - getEligibleSlotCount(b, filledSlots)
+  )
+  for (const player of sortedPlayers) {
+    let bestSlotIndex = -1
+    let bestPriority = Infinity
+    filledSlots.forEach((slot, index) => {
+      if (slot.player !== EMPTY_SLOT_PLAYER) {
+        return
+      }
+      const priority = getSlotPriority(player, slot)
+      if (priority > -1 && priority < bestPriority) {
+        bestPriority = priority
+        bestSlotIndex = index
+      }
+    })
+    if (bestSlotIndex === -1) {
+      bestSlotIndex = filledSlots.findIndex(
+        slot => slot.player === EMPTY_SLOT_PLAYER
+      )
     }
-    const player = players.at(playerIndex)
-    playerIndex += 1
-    return {
-      ...slot,
-      player: player?.name ?? EMPTY_SLOT_PLAYER,
+    if (bestSlotIndex > -1) {
+      filledSlots[bestSlotIndex] = {
+        ...filledSlots[bestSlotIndex],
+        player: player.name,
+      }
+    } else {
+      filledSlots.push({ ...createSlot(B_SLOT), player: player.name })
     }
-  })
+  }
+  return [...filledSlots, ...irSlots]
 }
 
 export const fillEmptySlotsWithPlayers = (
