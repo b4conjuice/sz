@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   ArrowUpTrayIcon,
@@ -7,6 +8,7 @@ import {
 } from '@heroicons/react/20/solid'
 
 import Menu from '@/components/menu'
+import Modal from '@/components/modal'
 import ImportExport from '@/components/import-export'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
@@ -71,6 +73,8 @@ function RouteComponent() {
     overwriteDraft,
   } = useTeams()
   const { players: playerList, savePlayer } = usePlayers()
+  const [isEditNameModalOpen, setIsEditNameModalOpen] = useState(false)
+  const [newTeamName, setNewTeamName] = useState('')
   const team = teams.at(teamIndex)
   if (!team) {
     return <p>team does not exist</p>
@@ -86,7 +90,19 @@ function RouteComponent() {
   return (
     <>
       <main className='flex grow flex-col gap-4 p-4'>
-        <h2>{name}</h2>
+        <h2 className='flex items-center gap-2'>
+          <span>{name}</span>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              setNewTeamName(name)
+              setIsEditNameModalOpen(true)
+            }}
+          >
+            <PencilSquareIcon className='h-6 w-6' />
+          </button>
+        </h2>
         {tab === 'draft' ? (
           <>
             <Depth players={draft?.players ?? []} />
@@ -241,6 +257,42 @@ function RouteComponent() {
           </button>
         </div>
       </footer>
+      <Modal
+        title='edit team name'
+        isOpen={isEditNameModalOpen}
+        setIsOpen={setIsEditNameModalOpen}
+      >
+        <form
+          className='space-y-3'
+          onSubmit={e => {
+            e.preventDefault()
+            updateTeam({ name: newTeamName.trim() })
+            setIsEditNameModalOpen(false)
+          }}
+        >
+          <input
+            type='text'
+            autoFocus
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='name'
+            value={newTeamName}
+            onChange={e => {
+              setNewTeamName(e.target.value)
+            }}
+          />
+          <div className='flex items-center gap-4'>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+              type='submit'
+              disabled={
+                newTeamName.trim() === '' || newTeamName.trim() === name
+              }
+            >
+              save
+            </button>
+          </div>
+        </form>
+      </Modal>
     </>
   )
 }
