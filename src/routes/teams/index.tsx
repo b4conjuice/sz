@@ -119,7 +119,12 @@ function RouteComponent() {
             })
             setNewTeamName('')
             setIsAddTeamModalOpen(false)
-            // TODO: go to team page?
+            navigate({
+              to: '/teams/$teamIndex',
+              params: {
+                teamIndex: String(teams.length),
+              },
+            })
           }}
         >
           <input
