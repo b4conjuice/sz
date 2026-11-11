@@ -16,7 +16,6 @@ import {
   EMPTY_SLOT_PLAYER,
   NORMAL_SLOT_OPTIONS,
   createEmptySlot,
-  fillEmptySlotsWithPlayers,
   getRosterSize,
   isIrSlot,
   recordTransactions,
@@ -90,8 +89,18 @@ export function Roster({
   const draftRosterSize = draft?.complete ? draft.players.length : null
   const sizedSlots =
     draftRosterSize === null ? slots : resizeSlots(slots, draftRosterSize)
-  const effectiveSlots = fillEmptySlotsWithPlayers(sizedSlots, players)
-  const rosterSize = getRosterSize(effectiveSlots)
+  const normalSlots = sizedSlots.filter(slot => !isIrSlot(slot))
+  const irSlots = sizedSlots.filter(isIrSlot)
+  const slottedPlayerNames = new Set(sizedSlots.map(slot => slot.player))
+  const benchSlots = players
+    .filter(player => !slottedPlayerNames.has(player.name))
+    .map(player => ({ ...createEmptySlot('B'), player: player.name }))
+  const visibleSlots = [...normalSlots, ...benchSlots, ...irSlots]
+  const toRealSlots = (allSlots: Slot[]) => [
+    ...allSlots.slice(0, normalSlots.length),
+    ...allSlots.slice(normalSlots.length + benchSlots.length),
+  ]
+  const rosterSize = getRosterSize(sizedSlots)
   const teamRosterSize = getRosterSize(sizedSlots)
   const irPlayerNames = new Set(
     sizedSlots.filter(isIrSlot).map(slot => slot.player)
@@ -108,12 +117,12 @@ export function Roster({
     addPlayerToTeam({ player, teamIndex })
   }
   const [newRosterSize, setNewRosterSize] = useState(rosterSize)
-  const [newSlots, setNewSlots] = useState<Slot[]>(effectiveSlots)
+  const [newSlots, setNewSlots] = useState<Slot[]>(sizedSlots)
   const [replacePlayer, setReplacePlayer] = useState(false)
   const slotsHaveChanged =
-    newSlots.length !== effectiveSlots.length ||
+    newSlots.length !== sizedSlots.length ||
     newSlots.some((slot, index) => {
-      const originalSlot = effectiveSlots.at(index)
+      const originalSlot = sizedSlots.at(index)
       return (
         !originalSlot ||
         slot.label !== originalSlot.label ||
@@ -122,7 +131,7 @@ export function Roster({
       )
     })
   const movingSlot =
-    movingSlotIndex === null ? undefined : effectiveSlots.at(movingSlotIndex)
+    movingSlotIndex === null ? undefined : visibleSlots.at(movingSlotIndex)
   const movingPlayer = movingSlot
     ? players.find(player => player.name === movingSlot.player)
     : undefined
@@ -135,60 +144,62 @@ export function Roster({
     ) {
       return false
     }
-    const isTargetEligible = targetSlot.eligiblePositions.some(position =>
+    return targetSlot.eligiblePositions.some(position =>
       movingPlayer.position.includes(position)
     )
-    if (!isTargetEligible) {
-      return false
-    }
-    if (targetSlot.player === EMPTY_SLOT_PLAYER) {
-      return true
-    }
-    const targetPlayer = players.find(
-      player => player.name === targetSlot.player
-    )
-    return targetPlayer
-      ? movingSlot.eligiblePositions.some(position =>
-          targetPlayer.position.includes(position)
-        )
-      : false
   }
   const movePlayer = (fromIndex: number | null, toIndex: number) => {
     if (fromIndex === null) {
       return
     }
-    const fromSlot = effectiveSlots.at(fromIndex)
-    const toSlot = effectiveSlots.at(toIndex)
+    const fromSlot = visibleSlots.at(fromIndex)
+    const toSlot = visibleSlots.at(toIndex)
     if (!fromSlot || !toSlot) {
       return
     }
     const fromPlayer = players.find(player => player.name === fromSlot.player)
     const toPlayer = players.find(player => player.name === toSlot.player)
-    const transactions: Array<Omit<Transaction, 'date'>> = []
-    if (fromPlayer && isIrSlot(fromSlot) !== isIrSlot(toSlot)) {
-      transactions.push({
-        type: isIrSlot(fromSlot) ? 'move-out-of-ir' : 'move-into-ir',
-        players: [fromPlayer],
-      })
-    }
-    if (toPlayer && isIrSlot(fromSlot) !== isIrSlot(toSlot)) {
-      transactions.push({
-        type: isIrSlot(fromSlot) ? 'move-into-ir' : 'move-out-of-ir',
-        players: [toPlayer],
-      })
-    }
-    const newTeam = {
-      ...team,
-      slots: effectiveSlots.map((slot, index) => {
-        if (index === fromIndex) {
-          return { ...slot, player: toSlot.player }
-        }
+    const canSwapBack =
+      !toPlayer ||
+      fromSlot.eligiblePositions.some(position =>
+        toPlayer.position.includes(position)
+      )
+    const updatedSlots = toRealSlots(
+      visibleSlots.map((slot, index) => {
         if (index === toIndex) {
           return { ...slot, player: fromSlot.player }
         }
+        if (index === fromIndex) {
+          return {
+            ...slot,
+            player: canSwapBack ? toSlot.player : EMPTY_SLOT_PLAYER,
+          }
+        }
         return slot
-      }),
+      })
+    )
+    const wasInIr = new Set(
+      sizedSlots.filter(isIrSlot).map(slot => slot.player)
+    )
+    const isInIr = new Set(
+      updatedSlots.filter(isIrSlot).map(slot => slot.player)
+    )
+    const transactions: Array<Omit<Transaction, 'date'>> = []
+    for (const player of [fromPlayer, toPlayer]) {
+      if (!player) {
+        continue
+      }
+      const wasIr = wasInIr.has(player.name)
+      const nowIr = isInIr.has(player.name)
+      if (wasIr === nowIr) {
+        continue
+      }
+      transactions.push({
+        type: nowIr ? 'move-into-ir' : 'move-out-of-ir',
+        players: [player],
+      })
     }
+    const newTeam = { ...team, slots: updatedSlots }
     saveTeam(
       transactions.length > 0
         ? recordTransactions(newTeam, transactions)
@@ -200,8 +211,8 @@ export function Roster({
     if (fromIndex === null) {
       return
     }
-    const fromSlot = effectiveSlots.at(fromIndex)
-    const toSlot = effectiveSlots.at(toIndex)
+    const fromSlot = visibleSlots.at(fromIndex)
+    const toSlot = visibleSlots.at(toIndex)
     if (!fromSlot || !toSlot) {
       return
     }
@@ -217,15 +228,17 @@ export function Roster({
     const newTeam = {
       ...team,
       players: players.filter(player => player.name !== toSlot.player),
-      slots: effectiveSlots.map((slot, index) => {
-        if (index === fromIndex) {
-          return { ...slot, player: EMPTY_SLOT_PLAYER }
-        }
-        if (index === toIndex) {
-          return { ...slot, player: fromSlot.player }
-        }
-        return slot
-      }),
+      slots: toRealSlots(
+        visibleSlots.map((slot, index) => {
+          if (index === fromIndex) {
+            return { ...slot, player: EMPTY_SLOT_PLAYER }
+          }
+          if (index === toIndex) {
+            return { ...slot, player: fromSlot.player }
+          }
+          return slot
+        })
+      ),
     }
     saveTeam(
       transactions.length > 0
@@ -255,7 +268,7 @@ export function Roster({
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
             onClick={() => {
               setNewRosterSize(rosterSize)
-              setNewSlots(effectiveSlots)
+              setNewSlots(sizedSlots)
               setIsRosterSettingsModalOpen(true)
             }}
           >
@@ -273,7 +286,7 @@ export function Roster({
         </div>
       </div>
       <ul className='divide-cb-dusty-blue divide-y'>
-        {effectiveSlots.map((slot, slotIndex) => {
+        {visibleSlots.map((slot, slotIndex) => {
           const player = players.find(p => p.name === slot.player)
           const isEmpty = slot.player === EMPTY_SLOT_PLAYER
           const isEligible = player
@@ -356,10 +369,12 @@ export function Roster({
                         players: players.filter(
                           currentPlayer => currentPlayer.name !== slot.player
                         ),
-                        slots: effectiveSlots.map((currentSlot, index) =>
-                          index === slotIndex
-                            ? { ...currentSlot, player: EMPTY_SLOT_PLAYER }
-                            : currentSlot
+                        slots: toRealSlots(
+                          visibleSlots.map((currentSlot, index) =>
+                            index === slotIndex
+                              ? { ...currentSlot, player: EMPTY_SLOT_PLAYER }
+                              : currentSlot
+                          )
                         ),
                       }
                       saveTeam(
