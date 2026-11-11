@@ -112,6 +112,7 @@ export function Roster({
   const addPlayer = (player: Player) => {
     if (isRosterFull) {
       setPendingPlayer(player)
+      setReplacePlayer(true)
       return
     }
     addPlayerToTeam({ player, teamIndex })
@@ -265,6 +266,9 @@ export function Roster({
           <button
             className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
             onClick={() => {
+              if (replacePlayer) {
+                setPendingPlayer(null)
+              }
               setReplacePlayer(!replacePlayer)
             }}
           >
@@ -373,35 +377,47 @@ export function Roster({
                     <XMarkIcon className='h-6 w-6' />
                   </button>
                 )}
-                {replacePlayer && !isEmpty && (
-                  <button
-                    className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
-                    onClick={() => {
-                      const newTeam = {
-                        ...team,
-                        players: players.filter(
-                          currentPlayer => currentPlayer.name !== slot.player
-                        ),
-                        slots: toRealSlots(
-                          visibleSlots.map((currentSlot, index) =>
-                            index === slotIndex
-                              ? { ...currentSlot, player: EMPTY_SLOT_PLAYER }
-                              : currentSlot
-                          )
-                        ),
-                      }
-                      saveTeam(
-                        player
-                          ? recordTransactions(newTeam, [
-                              { type: 'drop', players: [player] },
-                            ])
-                          : newTeam
-                      )
-                    }}
-                  >
-                    <TrashIcon className='h-6 w-6' />
-                  </button>
-                )}
+                {replacePlayer &&
+                  !isEmpty &&
+                  (!pendingPlayer || !isIrSlot(slot)) && (
+                    <button
+                      className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+                      onClick={() => {
+                        if (pendingPlayer) {
+                          replacePlayerOnTeam({
+                            teamIndex,
+                            player: pendingPlayer,
+                            replacedPlayerName: slot.player,
+                          })
+                          setPendingPlayer(null)
+                          setReplacePlayer(false)
+                          return
+                        }
+                        const newTeam = {
+                          ...team,
+                          players: players.filter(
+                            currentPlayer => currentPlayer.name !== slot.player
+                          ),
+                          slots: toRealSlots(
+                            visibleSlots.map((currentSlot, index) =>
+                              index === slotIndex
+                                ? { ...currentSlot, player: EMPTY_SLOT_PLAYER }
+                                : currentSlot
+                            )
+                          ),
+                        }
+                        saveTeam(
+                          player
+                            ? recordTransactions(newTeam, [
+                                { type: 'drop', players: [player] },
+                              ])
+                            : newTeam
+                        )
+                      }}
+                    >
+                      <TrashIcon className='h-6 w-6' />
+                    </button>
+                  )}
               </span>
             </li>
           )
@@ -538,36 +554,6 @@ export function Roster({
         ]}
         isOpen={isAddPlayerCommandPaletteOpen}
         setIsOpen={setIsAddPlayerCommandPaletteOpen}
-      />
-      <CoreCommandPalette
-        placeholder={
-          pendingPlayer
-            ? `drop a player to add ${pendingPlayer.name}`
-            : 'drop player'
-        }
-        isOpen={pendingPlayer !== null}
-        setIsOpen={isOpen => {
-          if (!isOpen) {
-            setPendingPlayer(null)
-          }
-        }}
-        commands={players
-          .filter(player => !irPlayerNames.has(player.name))
-          .map((player, index) => ({
-            id: `replace-player-${index}`,
-            title: `drop ${player.name} - ${player.position.join(', ')}`,
-            action: () => {
-              if (!pendingPlayer) {
-                return
-              }
-              replacePlayerOnTeam({
-                teamIndex,
-                player: pendingPlayer,
-                replacedPlayerName: player.name,
-              })
-              setPendingPlayer(null)
-            },
-          }))}
       />
       <CoreCommandPalette
         toggleIsOpenHotKey={'R'}
