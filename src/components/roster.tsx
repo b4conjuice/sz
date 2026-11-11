@@ -529,29 +529,31 @@ export function Roster({
             )
           )}
         </ul>
-        <button
-          className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-          type='button'
-          onClick={() => {
-            setNewSlots(prev => [...prev, createEmptySlot('IR')])
-          }}
-        >
-          add IR slot
-        </button>
-        <button
-          className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-          type='button'
-          onClick={() => {
-            saveTeam({
-              ...team,
-              slots: resizeSlots(newSlots, newRosterSize),
-            })
-            setIsRosterSettingsModalOpen(false)
-          }}
-          disabled={newRosterSize === rosterSize && !slotsHaveChanged}
-        >
-          save
-        </button>
+        <div className='flex items-center gap-4'>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              setNewSlots(prev => [...prev, createEmptySlot('IR')])
+            }}
+          >
+            add IR slot
+          </button>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            onClick={() => {
+              saveTeam({
+                ...team,
+                slots: resizeSlots(newSlots, newRosterSize),
+              })
+              setIsRosterSettingsModalOpen(false)
+            }}
+            disabled={newRosterSize === rosterSize && !slotsHaveChanged}
+          >
+            save
+          </button>
+        </div>
       </Modal>
       <CoreCommandPalette
         toggleIsOpenHotKey={'A'}
