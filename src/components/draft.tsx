@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  ArrowDownOnSquareIcon,
   Cog6ToothIcon,
   LockClosedIcon,
   LockOpenIcon,
@@ -178,7 +179,7 @@ export function Draft({
           />
         </label>
         <button
-          className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+          className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
           type='button'
           onClick={() => {
             if (!newDraft || !draft) {
@@ -197,7 +198,7 @@ export function Draft({
             newDraft?.teams === draft?.teams && newDraft?.pick === draft?.pick
           }
         >
-          save
+          <ArrowDownOnSquareIcon className='h-6 w-6' /> save
         </button>
       </Modal>
       <ConfirmModal

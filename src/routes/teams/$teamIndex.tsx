@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
+  ArrowDownOnSquareIcon,
   ArrowUpTrayIcon,
   PencilSquareIcon,
   TableCellsIcon,
@@ -282,13 +283,13 @@ function RouteComponent() {
           />
           <div className='flex items-center gap-4'>
             <button
-              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
               type='submit'
               disabled={
                 newTeamName.trim() === '' || newTeamName.trim() === name
               }
             >
-              save
+              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
             </button>
           </div>
         </form>

@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
+import {
+  ArrowDownOnSquareIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@heroicons/react/20/solid'
 import { useHotkey } from '@tanstack/react-hotkeys'
 
 import Menu from '@/components/menu'
@@ -128,11 +132,11 @@ function RouteComponent() {
           />
           <div className='flex items-center gap-4'>
             <button
-              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
               type='submit'
               disabled={newTeamName === ''}
             >
-              save
+              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
             </button>
           </div>
         </form>
