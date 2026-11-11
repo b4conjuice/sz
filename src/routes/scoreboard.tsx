@@ -104,6 +104,7 @@ function RouteComponent() {
           copy scoreboard script
         </button>
         <textarea
+          autoFocus
           className='border-cobalt bg-cobalt caret-cb-yellow focus:border-cb-light-blue text-cb-white h-full w-full grow focus:ring-0'
           value={JSON.stringify(scoreboard)}
           onChange={e => {

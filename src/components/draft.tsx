@@ -162,6 +162,7 @@ export function Draft({
             <input
               className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
               type='number'
+              autoFocus
               value={newDraft?.teams}
               onChange={e => {
                 setNewDraft(prev => {

@@ -38,6 +38,7 @@ export default function ImportExport<T>({
         </>
       )}
       <textarea
+        autoFocus
         className='bg-cobalt w-full p-4'
         value={importText}
         onChange={e => {

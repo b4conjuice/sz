@@ -192,7 +192,7 @@ function RouteComponent() {
               <ArrowDownOnSquareIcon className='h-6 w-6' /> save
             </button>
             <button
-              className='text-red-700 hover:text-red-700/75 flex items-center gap-2'
+              className='flex items-center gap-2 text-red-700 hover:text-red-700/75'
               type='button'
               onClick={() => {
                 setIsConfirmModalOpen(true)
@@ -313,6 +313,7 @@ function RouteComponent() {
           <p>create new team with player</p>
           <input
             type='text'
+            autoFocus
             className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
             placeholder='name'
             value={newTeamName}

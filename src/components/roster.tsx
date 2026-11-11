@@ -462,6 +462,7 @@ export function Roster({
               id='roster-size'
               className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
               type='number'
+              autoFocus
               min={1}
               value={newRosterSize}
               disabled={draftRosterSize !== null}
