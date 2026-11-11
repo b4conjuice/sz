@@ -101,6 +101,7 @@ export function Roster({
         selectedTeams.every(selectedTeam => player.team === selectedTeam))
   )
   const { players, draft } = team
+  const playerNamesOnTeam = new Set(players.map(player => player.name))
   const slots = team.slots ?? DEFAULT_SLOTS
   const draftRosterSize = draft?.complete ? draft.players.length : null
   const sizedSlots =
@@ -126,6 +127,9 @@ export function Roster({
   ).length
   const isRosterFull = activePlayerCount >= teamRosterSize
   const addPlayer = (player: Player) => {
+    if (playerNamesOnTeam.has(player.name)) {
+      return
+    }
     if (isRosterFull) {
       setPendingPlayer(player)
       setReplacePlayer(true)
@@ -583,6 +587,7 @@ export function Roster({
           ...filteredPlayerList.map((player, index) => ({
             id: `add-player-${index}`,
             title: `add ${player.name} - ${player.position.join(', ')}`,
+            disabled: playerNamesOnTeam.has(player.name),
             action: () => {
               addPlayer(player)
             },
