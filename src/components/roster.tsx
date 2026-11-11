@@ -11,6 +11,7 @@ import {
 
 import CoreCommandPalette from '@/components/command-palette'
 import Modal from '@/components/modal'
+import NewPlayerModal from '@/components/new-player-modal'
 import type { Player } from '@/lib/use-players'
 import {
   DEFAULT_SLOTS,
@@ -60,11 +61,6 @@ export function Roster({
   const [isAddPlayerCommandPaletteOpen, setIsAddPlayerCommandPaletteOpen] =
     useState(false)
   const [isAddNewPlayerModalOpen, setIsAddNewPlayerModalOpen] = useState(false)
-  const [newPlayer, setNewPlayer] = useState<Player>({
-    name: '',
-    team: '',
-    position: [],
-  })
   const [movingSlotIndex, setMovingSlotIndex] = useState<number | null>(null)
   const [pendingPlayer, setPendingPlayer] = useState<Player | null>(null)
   const [selectedPositions, setSelectedPositions] = useState<string[]>([])
@@ -137,15 +133,6 @@ export function Roster({
       return
     }
     addPlayerToTeam({ player, teamIndex })
-  }
-  const submitNewPlayer = () => {
-    if (newPlayer.name === '' || newPlayer.team === '') {
-      return
-    }
-    savePlayer({ player: newPlayer })
-    addPlayer(newPlayer)
-    setNewPlayer({ name: '', team: '', position: [] })
-    setIsAddNewPlayerModalOpen(false)
   }
   const [newRosterSize, setNewRosterSize] = useState(rosterSize)
   const [newSlots, setNewSlots] = useState<Slot[]>(sizedSlots)
@@ -629,109 +616,15 @@ export function Roster({
           })),
         ]}
       />
-      <Modal
-        title='create new player'
+      <NewPlayerModal
         isOpen={isAddNewPlayerModalOpen}
         setIsOpen={setIsAddNewPlayerModalOpen}
-      >
-        <form
-          className='space-y-3'
-          onSubmit={e => {
-            e.preventDefault()
-            submitNewPlayer()
-          }}
-          onKeyDown={e => {
-            if (e.key !== 'Enter') return
-            e.preventDefault()
-            submitNewPlayer()
-          }}
-        >
-          <input
-            type='text'
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            placeholder='name'
-            value={newPlayer.name}
-            onChange={e => {
-              setNewPlayer(prev => ({
-                ...prev,
-                name: e.target.value,
-              }))
-            }}
-          />
-          <input
-            type='text'
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            placeholder='team'
-            value={newPlayer.team}
-            onChange={e => {
-              setNewPlayer(prev => ({
-                ...prev,
-                team: e.target.value,
-              }))
-            }}
-          />
-          {playerTeams.length > 0 && (
-            <select
-              className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-              value={playerTeams.includes(newPlayer.team) ? newPlayer.team : ''}
-              onChange={e => {
-                setNewPlayer(prev => ({
-                  ...prev,
-                  team: e.target.value,
-                }))
-              }}
-            >
-              <option value=''>select team</option>
-              {playerTeams.map(playerTeam => (
-                <option key={playerTeam} value={playerTeam}>
-                  {playerTeam}
-                </option>
-              ))}
-            </select>
-          )}
-          <ul className='flex gap-2 overflow-x-auto'>
-            {positions.map(pos => (
-              <li key={pos}>
-                <button
-                  className={classNames(
-                    'bg-cb-blue rounded-lg border p-2',
-                    newPlayer.position.includes(pos)
-                      ? 'border-cb-pink'
-                      : 'border-cb-blue'
-                  )}
-                  type='button'
-                  onClick={() => {
-                    const newPositionIndex = newPlayer.position.findIndex(
-                      p => p === pos
-                    )
-                    const newPosition = [...newPlayer.position]
-                    if (newPositionIndex > -1) {
-                      newPosition.splice(newPositionIndex, 1)
-                    } else {
-                      newPosition.push(pos)
-                    }
-                    setNewPlayer(prev => ({
-                      ...prev,
-                      position: newPosition,
-                    }))
-                  }}
-                >
-                  {pos}
-                </button>
-              </li>
-            ))}
-          </ul>
-          <div className='flex items-center gap-4'>
-            <button
-              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
-              type='submit'
-              disabled={newPlayer.name === '' || newPlayer.team === ''}
-            >
-              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
-            </button>
-          </div>
-        </form>
-      </Modal>
+        playerList={playerList}
+        onSubmit={player => {
+          savePlayer({ player })
+          addPlayer(player)
+        }}
+      />
     </>
   )
 }

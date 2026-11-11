@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router'
-import { ArrowDownOnSquareIcon, PlusIcon } from '@heroicons/react/20/solid'
+import { PlusIcon } from '@heroicons/react/20/solid'
 import classNames from 'classnames'
 import { useLocalStorage } from '@uidotdev/usehooks'
 
 import Menu from '@/components/menu'
-import Modal from '@/components/modal'
+import NewPlayerModal from '@/components/new-player-modal'
 import useSearch from '@/lib/use-search'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
@@ -31,11 +31,6 @@ function RouteComponent() {
   const navigate = routeApi.useNavigate()
   const { players, savePlayer } = usePlayers()
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
-  const [newPlayer, setNewPlayer] = useState<Player>({
-    name: '',
-    team: '',
-    position: [],
-  })
 
   const { search, setSearch, results } = useSearch({
     initialSearch: query,
@@ -221,60 +216,15 @@ function RouteComponent() {
           </button>
         </div>
       </footer>
-      <Modal
-        title='add player'
+      <NewPlayerModal
         isOpen={isAddPlayerModalOpen}
         setIsOpen={setIsAddPlayerModalOpen}
-      >
-        <form
-          className='space-y-3'
-          onSubmit={e => {
-            e.preventDefault()
-            savePlayer({
-              player: newPlayer,
-            })
-            setIsAddPlayerModalOpen(false)
-          }}
-        >
-          <input
-            type='text'
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            placeholder='name'
-            value={newPlayer.name}
-            onChange={e => {
-              setNewPlayer(prev => ({
-                ...prev,
-                name: e.target.value,
-              }))
-            }}
-          />
-          <input
-            type='text'
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            placeholder='team'
-            value={newPlayer.team}
-            onChange={e => {
-              setNewPlayer(prev => ({
-                ...prev,
-                team: e.target.value,
-              }))
-            }}
-          />
-          <div className='flex items-center gap-4'>
-            <button
-              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
-              type='submit'
-              disabled={
-                newPlayer.name === '' || newPlayer.team === ''
-                // ||
-                // newPlayer.position.length === 0
-              }
-            >
-              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
-            </button>
-          </div>
-        </form>
-      </Modal>
+        playerList={players}
+        title='add player'
+        onSubmit={player => {
+          savePlayer({ player })
+        }}
+      />
     </>
   )
 }
