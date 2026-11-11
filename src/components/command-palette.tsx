@@ -23,6 +23,7 @@ export type Command = {
   id: string
   title: string
   subtitle?: string
+  disabled?: boolean
   action: (args?: unknown) => void | Promise<void>
 }
 
@@ -116,7 +117,7 @@ export default function CommandPalette({
               <Combobox
                 as='div'
                 onChange={async (command: Command | null) => {
-                  if (!command) {
+                  if (!command || command.disabled) {
                     return
                   }
                   await command.action()
@@ -178,25 +179,43 @@ export default function CommandPalette({
                     className='max-h-40 overflow-y-auto py-4 text-sm'
                   >
                     {filteredCommands.map(command => (
-                      <ComboboxOption key={command.id} value={command}>
+                      <ComboboxOption
+                        key={command.id}
+                        value={command}
+                        disabled={command.disabled}
+                      >
                         {({ active }) => (
                           <div
-                            className={`space-x-1 px-4 py-2 ${
-                              active ? 'bg-indigo-600' : 'bg-white'
-                            }`}
+                            className={classNames(
+                              'space-x-1 px-4 py-2',
+                              command.disabled
+                                ? 'bg-white opacity-25'
+                                : active
+                                  ? 'bg-indigo-600'
+                                  : 'bg-white'
+                            )}
                           >
                             <span
-                              className={`font-medium ${
-                                active ? 'text-white' : 'text-gray-900'
-                              }`}
+                              className={classNames(
+                                'font-medium',
+                                command.disabled
+                                  ? 'text-gray-900'
+                                  : active
+                                    ? 'text-white'
+                                    : 'text-gray-900'
+                              )}
                             >
                               {command.title}
                             </span>
                             {command.subtitle && (
                               <span
-                                className={`${
-                                  active ? 'text-indigo-200' : 'text-gray-400'
-                                }`}
+                                className={classNames(
+                                  command.disabled
+                                    ? 'text-gray-400'
+                                    : active
+                                      ? 'text-indigo-200'
+                                      : 'text-gray-400'
+                                )}
                               >
                                 - {command.subtitle}
                               </span>
