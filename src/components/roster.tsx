@@ -23,6 +23,11 @@ import {
 } from '@/lib/use-teams'
 import type { Slot, Team as TeamType, Transaction } from '@/lib/use-teams'
 
+const toggleFilterValue = (values: string[], value: string) =>
+  values.includes(value)
+    ? values.filter(currentValue => currentValue !== value)
+    : [...values, value]
+
 export function Roster({
   team,
   teamIndex,
@@ -61,6 +66,8 @@ export function Roster({
   })
   const [movingSlotIndex, setMovingSlotIndex] = useState<number | null>(null)
   const [pendingPlayer, setPendingPlayer] = useState<Player | null>(null)
+  const [selectedPositions, setSelectedPositions] = useState<string[]>([])
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([])
   const positions = [
     ...new Set([
       'PG',
@@ -84,6 +91,15 @@ export function Roster({
       }, [])
     ),
   ].filter(playerTeam => Boolean(playerTeam))
+  const filteredPlayerList = playerList.filter(
+    player =>
+      (selectedPositions.length === 0 ||
+        selectedPositions.every(position =>
+          player.position.includes(position)
+        )) &&
+      (selectedTeams.length === 0 ||
+        selectedTeams.every(selectedTeam => player.team === selectedTeam))
+  )
   const { players, draft } = team
   const slots = team.slots ?? DEFAULT_SLOTS
   const draftRosterSize = draft?.complete ? draft.players.length : null
@@ -536,6 +552,26 @@ export function Roster({
       <CoreCommandPalette
         toggleIsOpenHotKey={'A'}
         placeholder='add player'
+        filterGroups={[
+          {
+            id: 'position',
+            label: 'position',
+            options: positions,
+            selected: selectedPositions,
+            onToggle: position => {
+              setSelectedPositions(prev => toggleFilterValue(prev, position))
+            },
+          },
+          {
+            id: 'team',
+            label: 'team',
+            options: playerTeams,
+            selected: selectedTeams,
+            onToggle: playerTeam => {
+              setSelectedTeams(prev => toggleFilterValue(prev, playerTeam))
+            },
+          },
+        ]}
         commands={[
           {
             id: 'add-new-player',
@@ -544,7 +580,7 @@ export function Roster({
               setIsAddNewPlayerModalOpen(true)
             },
           },
-          ...playerList.map((player, index) => ({
+          ...filteredPlayerList.map((player, index) => ({
             id: `add-player-${index}`,
             title: `add ${player.name} - ${player.position.join(', ')}`,
             action: () => {
