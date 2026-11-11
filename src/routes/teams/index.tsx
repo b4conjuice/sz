@@ -99,42 +99,49 @@ function RouteComponent() {
         isOpen={isAddTeamModalOpen}
         setIsOpen={setIsAddTeamModalOpen}
       >
-        <input
-          type='text'
-          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-          placeholder='name'
-          value={newTeamName}
-          onChange={e => {
-            setNewTeamName(e.target.value)
-          }}
-        />
-        <div className='flex items-center gap-4'>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
-              // TODO: maybe add `createTeam` which sets the default
-              saveTeam({
-                team: {
-                  name: newTeamName,
+        <form
+          className='space-y-3'
+          onSubmit={e => {
+            e.preventDefault()
+            // TODO: maybe add `createTeam` which sets the default
+            saveTeam({
+              team: {
+                name: newTeamName,
+                players: [],
+                draft: {
                   players: [],
-                  draft: {
-                    players: [],
-                    teams: 12,
-                    pick: 1,
-                    complete: false,
-                  },
-                  slots: DEFAULT_SLOTS,
+                  teams: 12,
+                  pick: 1,
+                  complete: false,
                 },
-              })
-              setIsAddTeamModalOpen(false)
-              // TODO: go to team page?
+                slots: DEFAULT_SLOTS,
+              },
+            })
+            setNewTeamName('')
+            setIsAddTeamModalOpen(false)
+            // TODO: go to team page?
+          }}
+        >
+          <input
+            type='text'
+            autoFocus
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='name'
+            value={newTeamName}
+            onChange={e => {
+              setNewTeamName(e.target.value)
             }}
-            disabled={newTeamName === ''}
-          >
-            save
-          </button>
-        </div>
+          />
+          <div className='flex items-center gap-4'>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+              type='submit'
+              disabled={newTeamName === ''}
+            >
+              save
+            </button>
+          </div>
+        </form>
       </Modal>
       {teamToBeDeletedIndex !== null && teamToBeDeleted !== null && (
         <ConfirmModal
