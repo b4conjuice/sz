@@ -60,6 +60,7 @@ export default function NewPlayerModal({
       >
         <input
           type='text'
+          autoFocus
           className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
           placeholder='name'
           value={newPlayer.name}
