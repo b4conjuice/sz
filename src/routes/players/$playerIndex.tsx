@@ -2,7 +2,11 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import classNames from 'classnames'
-import { ArrowDownOnSquareIcon, PlusIcon } from '@heroicons/react/20/solid'
+import {
+  ArrowDownOnSquareIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@heroicons/react/20/solid'
 
 import Menu from '@/components/menu'
 import { getPlayers, usePlayers } from '@/lib/use-players'
@@ -10,6 +14,7 @@ import type { Player } from '@/lib/use-players'
 import { DEFAULT_SLOTS, useTeams } from '@/lib/use-teams'
 import ImportExportModal from '@/components/import-export-modal'
 import Modal from '@/components/modal'
+import ConfirmModal from '@/components/confirm-modal'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/players/$playerIndex')({
@@ -51,6 +56,7 @@ function listsAreEqual(list1: string[], list2: string[]): boolean {
 
 function RouteComponent() {
   const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [newTeamName, setNewTeamName] = useState('')
   useHotkey('A', () => {
     setIsAddTeamModalOpen(true)
@@ -58,7 +64,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { playerIndex: playerIndexParam } = Route.useParams()
   const playerIndex = Number(playerIndexParam)
-  const { players, savePlayer } = usePlayers()
+  const { players, savePlayer, deletePlayerByIndex } = usePlayers()
   const { teams, saveTeam, addPlayerToTeam } = useTeams()
   const player = players[playerIndex]
   const [newPlayer, setNewPlayer] = useState<Player>(player)
@@ -184,6 +190,15 @@ function RouteComponent() {
               disabled={!hasChanges}
             >
               <ArrowDownOnSquareIcon className='h-6 w-6' /> save
+            </button>
+            <button
+              className='text-red-700 hover:text-red-700/75 flex items-center gap-2'
+              type='button'
+              onClick={() => {
+                setIsConfirmModalOpen(true)
+              }}
+            >
+              <TrashIcon className='h-6 w-6' /> delete
             </button>
           </div>
         </form>
@@ -316,6 +331,17 @@ function RouteComponent() {
           </div>
         </form>
       </Modal>
+      <ConfirmModal
+        title={`delete ${name}`}
+        isOpen={isConfirmModalOpen}
+        setIsOpen={setIsConfirmModalOpen}
+        action={() => {
+          deletePlayerByIndex(playerIndex)
+          navigate({ to: '/players', search: { q: undefined } })
+        }}
+      >
+        delete {name}?
+      </ConfirmModal>
     </>
   )
 }
