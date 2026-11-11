@@ -3,6 +3,7 @@ import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import classNames from 'classnames'
 import { useLocalStorage } from '@uidotdev/usehooks'
+import { useHotkey } from '@tanstack/react-hotkeys'
 
 import Menu from '@/components/menu'
 import NewPlayerModal from '@/components/new-player-modal'
@@ -31,6 +32,9 @@ function RouteComponent() {
   const navigate = routeApi.useNavigate()
   const { players, savePlayer } = usePlayers()
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
+  useHotkey('A', () => {
+    setIsAddPlayerModalOpen(true)
+  })
 
   const { search, setSearch, results } = useSearch({
     initialSearch: query,
