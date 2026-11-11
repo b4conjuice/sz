@@ -226,49 +226,54 @@ function RouteComponent() {
         isOpen={isAddPlayerModalOpen}
         setIsOpen={setIsAddPlayerModalOpen}
       >
-        <input
-          type='text'
-          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-          placeholder='name'
-          value={newPlayer.name}
-          onChange={e => {
-            setNewPlayer(prev => ({
-              ...prev,
-              name: e.target.value,
-            }))
+        <form
+          className='space-y-3'
+          onSubmit={e => {
+            e.preventDefault()
+            savePlayer({
+              player: newPlayer,
+            })
+            setIsAddPlayerModalOpen(false)
           }}
-        />
-        <input
-          type='text'
-          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-          placeholder='team'
-          value={newPlayer.team}
-          onChange={e => {
-            setNewPlayer(prev => ({
-              ...prev,
-              team: e.target.value,
-            }))
-          }}
-        />
-        <div className='flex items-center gap-4'>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
-              savePlayer({
-                player: newPlayer,
-              })
-              setIsAddPlayerModalOpen(false)
+        >
+          <input
+            type='text'
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='name'
+            value={newPlayer.name}
+            onChange={e => {
+              setNewPlayer(prev => ({
+                ...prev,
+                name: e.target.value,
+              }))
             }}
-            disabled={
-              newPlayer.name === '' || newPlayer.team === ''
-              // ||
-              // newPlayer.position.length === 0
-            }
-          >
-            <ArrowDownOnSquareIcon className='h-6 w-6' /> save
-          </button>
-        </div>
+          />
+          <input
+            type='text'
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='team'
+            value={newPlayer.team}
+            onChange={e => {
+              setNewPlayer(prev => ({
+                ...prev,
+                team: e.target.value,
+              }))
+            }}
+          />
+          <div className='flex items-center gap-4'>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
+              type='submit'
+              disabled={
+                newPlayer.name === '' || newPlayer.team === ''
+                // ||
+                // newPlayer.position.length === 0
+              }
+            >
+              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
+            </button>
+          </div>
+        </form>
       </Modal>
     </>
   )

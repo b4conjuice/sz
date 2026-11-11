@@ -140,48 +140,10 @@ export function Draft({
         isOpen={isDraftSettingsModalOpen}
         setIsOpen={setIsDraftSettingsModalOpen}
       >
-        <label htmlFor='teams'>
-          teams
-          <input
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            type='number'
-            value={newDraft?.teams}
-            onChange={e => {
-              setNewDraft(prev => {
-                if (!prev) {
-                  return prev
-                }
-                return {
-                  ...prev,
-                  teams: Number(e.target.value),
-                }
-              })
-            }}
-          />
-        </label>
-        <label htmlFor='pick'>
-          pick
-          <input
-            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-            type='number'
-            value={newDraft?.pick}
-            onChange={e => {
-              setNewDraft(prev => {
-                if (!prev) {
-                  return prev
-                }
-                return {
-                  ...prev,
-                  pick: Number(e.target.value),
-                }
-              })
-            }}
-          />
-        </label>
-        <button
-          className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
-          type='button'
-          onClick={() => {
+        <form
+          className='space-y-3'
+          onSubmit={e => {
+            e.preventDefault()
             if (!newDraft || !draft) {
               return
             }
@@ -194,12 +156,55 @@ export function Draft({
               },
             })
           }}
-          disabled={
-            newDraft?.teams === draft?.teams && newDraft?.pick === draft?.pick
-          }
         >
-          <ArrowDownOnSquareIcon className='h-6 w-6' /> save
-        </button>
+          <label htmlFor='teams'>
+            teams
+            <input
+              className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+              type='number'
+              value={newDraft?.teams}
+              onChange={e => {
+                setNewDraft(prev => {
+                  if (!prev) {
+                    return prev
+                  }
+                  return {
+                    ...prev,
+                    teams: Number(e.target.value),
+                  }
+                })
+              }}
+            />
+          </label>
+          <label htmlFor='pick'>
+            pick
+            <input
+              className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+              type='number'
+              value={newDraft?.pick}
+              onChange={e => {
+                setNewDraft(prev => {
+                  if (!prev) {
+                    return prev
+                  }
+                  return {
+                    ...prev,
+                    pick: Number(e.target.value),
+                  }
+                })
+              }}
+            />
+          </label>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
+            type='submit'
+            disabled={
+              newDraft?.teams === draft?.teams && newDraft?.pick === draft?.pick
+            }
+          >
+            <ArrowDownOnSquareIcon className='h-6 w-6' /> save
+          </button>
+        </form>
       </Modal>
       <ConfirmModal
         isOpen={isConfirmClearDraftModalOpen}

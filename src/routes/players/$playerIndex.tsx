@@ -79,6 +79,15 @@ function RouteComponent() {
   const teamsWithoutPlayer = teams.filter(t =>
     t.players.every(p => p.name !== name)
   )
+  const hasChanges =
+    newPlayer.name !== player.name ||
+    (newPlayer.nickname ?? '') !== (player.nickname ?? '') ||
+    newPlayer.team !== player.team ||
+    !listsAreEqual(newPlayer.position, player.position)
+  const submitPlayer = () => {
+    if (!hasChanges) return
+    savePlayer({ player: newPlayer, index: playerIndex })
+  }
   return (
     <>
       <main className='flex grow flex-col gap-4 p-4'>
@@ -88,93 +97,96 @@ function RouteComponent() {
           <span>{position.join(', ')}</span>
           <span className='text-sm'>{team}</span>
         </h2>
-        <input
-          type='text'
-          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-          placeholder='name'
-          value={newPlayer.name}
-          onChange={e => {
-            setNewPlayer(prev => ({
-              ...prev,
-              name: e.target.value,
-            }))
+        <form
+          className='flex flex-col gap-4'
+          onSubmit={e => {
+            e.preventDefault()
+            submitPlayer()
           }}
-        />
-        <input
-          type='text'
-          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-          placeholder='nickname'
-          value={newPlayer.nickname ?? ''}
-          onChange={e => {
-            setNewPlayer(prev => ({
-              ...prev,
-              nickname: e.target.value,
-            }))
+          onKeyDown={e => {
+            if (e.key !== 'Enter') return
+            e.preventDefault()
+            submitPlayer()
           }}
-        />
-        <input
-          type='text'
-          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-          placeholder='team'
-          value={newPlayer.team}
-          onChange={e => {
-            setNewPlayer(prev => ({
-              ...prev,
-              team: e.target.value,
-            }))
-          }}
-        />
-        <ul className='flex gap-2 overflow-x-auto'>
-          {positions.map(pos => (
-            <li key={pos}>
-              <button
-                className={classNames(
-                  'bg-cb-blue rounded-lg border p-2',
-                  newPlayer.position.includes(pos)
-                    ? 'border-cb-pink'
-                    : 'border-cb-blue'
-                )}
-                onClick={() => {
-                  const newPositionIndex = newPlayer.position.findIndex(
-                    p => p === pos
-                  )
-                  const newPosition = [...newPlayer.position]
-                  if (newPositionIndex > -1) {
-                    newPosition.splice(newPositionIndex, 1)
-                  } else {
-                    newPosition.push(pos)
-                  }
-                  setNewPlayer(prev => ({
-                    ...prev,
-                    position: newPosition,
-                  }))
-                }}
-              >
-                {pos}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div className='flex items-center gap-4'>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
-              savePlayer({
-                player: newPlayer,
-                index: playerIndex,
-              })
+        >
+          <input
+            type='text'
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='name'
+            value={newPlayer.name}
+            onChange={e => {
+              setNewPlayer(prev => ({
+                ...prev,
+                name: e.target.value,
+              }))
             }}
-            disabled={
-              newPlayer.name === player.name &&
-              (newPlayer.nickname ?? '') === (player.nickname ?? '') &&
-              newPlayer.team === player.team &&
-              listsAreEqual(newPlayer.position, player.position)
-            }
-          >
-            <ArrowDownOnSquareIcon className='h-6 w-6' /> save
-          </button>
-        </div>
+          />
+          <input
+            type='text'
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='nickname'
+            value={newPlayer.nickname ?? ''}
+            onChange={e => {
+              setNewPlayer(prev => ({
+                ...prev,
+                nickname: e.target.value,
+              }))
+            }}
+          />
+          <input
+            type='text'
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='team'
+            value={newPlayer.team}
+            onChange={e => {
+              setNewPlayer(prev => ({
+                ...prev,
+                team: e.target.value,
+              }))
+            }}
+          />
+          <ul className='flex gap-2 overflow-x-auto'>
+            {positions.map(pos => (
+              <li key={pos}>
+                <button
+                  className={classNames(
+                    'bg-cb-blue rounded-lg border p-2',
+                    newPlayer.position.includes(pos)
+                      ? 'border-cb-pink'
+                      : 'border-cb-blue'
+                  )}
+                  type='button'
+                  onClick={() => {
+                    const newPositionIndex = newPlayer.position.findIndex(
+                      p => p === pos
+                    )
+                    const newPosition = [...newPlayer.position]
+                    if (newPositionIndex > -1) {
+                      newPosition.splice(newPositionIndex, 1)
+                    } else {
+                      newPosition.push(pos)
+                    }
+                    setNewPlayer(prev => ({
+                      ...prev,
+                      position: newPosition,
+                    }))
+                  }}
+                >
+                  {pos}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className='flex items-center gap-4'>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
+              type='submit'
+              disabled={!hasChanges}
+            >
+              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
+            </button>
+          </div>
+        </form>
         <div className='flex gap-4'>
           <h2>on teams</h2>
           <button
@@ -263,41 +275,46 @@ function RouteComponent() {
           </ul>
         )}
         <hr className='border-cb-white/25' />
-        <p>create new team with player</p>
-        <input
-          type='text'
-          className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-          placeholder='name'
-          value={newTeamName}
-          onChange={e => {
-            setNewTeamName(e.target.value)
-          }}
-        />
-        <div className='flex items-center gap-4'>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
-              saveTeam({
-                team: {
-                  name: newTeamName,
-                  players: [player],
-                  draft: {
-                    players: [],
-                    teams: 12,
-                    pick: 1,
-                    complete: false,
-                  },
-                  slots: DEFAULT_SLOTS,
+        <form
+          className='space-y-3'
+          onSubmit={e => {
+            e.preventDefault()
+            saveTeam({
+              team: {
+                name: newTeamName,
+                players: [player],
+                draft: {
+                  players: [],
+                  teams: 12,
+                  pick: 1,
+                  complete: false,
                 },
-              })
-              setIsAddTeamModalOpen(false)
+                slots: DEFAULT_SLOTS,
+              },
+            })
+            setIsAddTeamModalOpen(false)
+          }}
+        >
+          <p>create new team with player</p>
+          <input
+            type='text'
+            className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+            placeholder='name'
+            value={newTeamName}
+            onChange={e => {
+              setNewTeamName(e.target.value)
             }}
-            disabled={newTeamName === ''}
-          >
-            <ArrowDownOnSquareIcon className='h-6 w-6' /> save
-          </button>
-        </div>
+          />
+          <div className='flex items-center gap-4'>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
+              type='submit'
+              disabled={newTeamName === ''}
+            >
+              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
+            </button>
+          </div>
+        </form>
       </Modal>
     </>
   )
