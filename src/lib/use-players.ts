@@ -57,9 +57,13 @@ export function usePlayers() {
       }
     })
   }
+  const deletePlayerByIndex = (index: number) => {
+    setPlayers(prev => prev.filter((_, i) => i !== index))
+  }
   return {
     players,
     savePlayer,
+    deletePlayerByIndex,
     overwritePlayers,
   }
 }
