@@ -126,6 +126,8 @@ export function Roster({
   const movingPlayer = movingSlot
     ? players.find(player => player.name === movingSlot.player)
     : undefined
+  const isPlayerEligibleForSlot = (player: Player, slot: Slot) =>
+    slot.eligiblePositions.some(position => player.position.includes(position))
   const canMoveToSlot = (targetSlot: Slot, targetIndex: number) => {
     if (
       movingSlotIndex === null ||
@@ -135,22 +137,20 @@ export function Roster({
     ) {
       return false
     }
-    const isTargetEligible = targetSlot.eligiblePositions.some(position =>
-      movingPlayer.position.includes(position)
-    )
-    if (!isTargetEligible) {
+    if (!isPlayerEligibleForSlot(movingPlayer, targetSlot)) {
       return false
     }
     if (targetSlot.player === EMPTY_SLOT_PLAYER) {
       return true
     }
+    if (isIrSlot(movingSlot) && !isIrSlot(targetSlot)) {
+      return false
+    }
     const targetPlayer = players.find(
       player => player.name === targetSlot.player
     )
     return targetPlayer
-      ? movingSlot.eligiblePositions.some(position =>
-          targetPlayer.position.includes(position)
-        )
+      ? isPlayerEligibleForSlot(targetPlayer, movingSlot)
       : false
   }
   const movePlayer = (fromIndex: number | null, toIndex: number) => {
@@ -284,11 +284,14 @@ export function Roster({
           const isMovingSlot = movingSlotIndex === slotIndex
           const canMoveHere = canMoveToSlot(slot, slotIndex)
           const canReplaceHere =
-            canMoveHere &&
+            movingSlotIndex !== null &&
             movingSlot !== undefined &&
+            movingPlayer !== undefined &&
+            slotIndex !== movingSlotIndex &&
             isIrSlot(movingSlot) &&
             !isIrSlot(slot) &&
-            !isEmpty
+            !isEmpty &&
+            isPlayerEligibleForSlot(movingPlayer, slot)
           return (
             <li key={slotIndex} className='flex py-4 first:pt-0'>
               <span className='w-12 shrink-0'>{slot.label}</span>
