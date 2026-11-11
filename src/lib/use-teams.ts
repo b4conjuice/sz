@@ -146,6 +146,18 @@ export const getRosterSize = (slots: Slot[]): number =>
 
 export const DEFAULT_SLOTS: Slot[] = SLOT_ORDER.slice(0, 5).map(createSlot)
 
+export const createTeam = (name: string): Team => ({
+  name,
+  players: [],
+  draft: {
+    players: [],
+    teams: DEFAULT_DRAFT_TEAMS,
+    pick: DEFAULT_DRAFT_PICK,
+    complete: false,
+  },
+  slots: DEFAULT_SLOTS,
+})
+
 export const resizeSlots = (slots: Slot[], size: number): Slot[] => {
   const normalSlots = slots.filter(slot => !isIrSlot(slot))
   const irSlots = slots.filter(slot => isIrSlot(slot))

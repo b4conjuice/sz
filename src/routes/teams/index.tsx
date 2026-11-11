@@ -5,7 +5,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
-import { DEFAULT_SLOTS, useTeams } from '@/lib/use-teams'
+import { createTeam, useTeams } from '@/lib/use-teams'
 import ConfirmModal from '@/components/confirm-modal'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
@@ -103,19 +103,8 @@ function RouteComponent() {
           className='space-y-3'
           onSubmit={e => {
             e.preventDefault()
-            // TODO: maybe add `createTeam` which sets the default
             saveTeam({
-              team: {
-                name: newTeamName,
-                players: [],
-                draft: {
-                  players: [],
-                  teams: 12,
-                  pick: 1,
-                  complete: false,
-                },
-                slots: DEFAULT_SLOTS,
-              },
+              team: createTeam(newTeamName),
             })
             setNewTeamName('')
             setIsAddTeamModalOpen(false)
