@@ -14,6 +14,7 @@ import {
   RocketLaunchIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
+import classNames from 'classnames'
 import Fuse from 'fuse.js'
 import { useHotkeys } from '@tanstack/react-hotkeys'
 import type { RegisterableHotkey } from '@tanstack/react-hotkeys'
@@ -25,6 +26,14 @@ export type Command = {
   action: (args?: unknown) => void | Promise<void>
 }
 
+export type CommandFilterGroup = {
+  id: string
+  label?: string
+  options: string[]
+  selected: string[]
+  onToggle: (option: string) => void
+}
+
 export default function CommandPalette({
   commands,
   placeholder = 'search commands',
@@ -32,6 +41,7 @@ export default function CommandPalette({
   setIsOpen: externalSetIsOpen,
   showLaunchButton,
   toggleIsOpenHotKey,
+  filterGroups,
 }: {
   commands: Command[]
   placeholder?: string
@@ -39,6 +49,7 @@ export default function CommandPalette({
   setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
   showLaunchButton?: boolean
   toggleIsOpenHotKey?: RegisterableHotkey | RegisterableHotkey[]
+  filterGroups?: CommandFilterGroup[]
 }) {
   const [internalIsOpen, internalSetIsOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -68,8 +79,12 @@ export default function CommandPalette({
     keys: ['id', 'title', { name: 'name', weight: 2 }],
   })
 
+  const hasActiveFilters =
+    filterGroups?.some(group => group.selected.length > 0) ?? false
   const filteredCommands = !query
-    ? []
+    ? hasActiveFilters
+      ? commands
+      : []
     : fuse.search(query.toLowerCase()).map(({ item }) => item)
   return (
     <>
@@ -97,9 +112,13 @@ export default function CommandPalette({
             leaveTo='opacity-0 scale-95'
           >
             <DialogPanel>
+              {/* TODO: retheme the command palette to match the cobalt app theme */}
               <Combobox
                 as='div'
-                onChange={async (command: Command) => {
+                onChange={async (command: Command | null) => {
+                  if (!command) {
+                    return
+                  }
                   await command.action()
                   setIsOpen(false)
                 }}
@@ -116,6 +135,43 @@ export default function CommandPalette({
                     placeholder={placeholder}
                   />
                 </div>
+                {filterGroups?.map(group =>
+                  group.options.length > 0 ? (
+                    <div
+                      key={group.id}
+                      className='flex items-start gap-2 px-4 py-2'
+                    >
+                      {group.label && (
+                        <span className='shrink-0 pt-2 text-xs text-gray-500'>
+                          {group.label}
+                        </span>
+                      )}
+                      <ul className='flex gap-2 overflow-x-auto'>
+                        {group.options.map(option => (
+                          <li key={option} className='shrink-0'>
+                            <button
+                              className={classNames(
+                                'rounded-lg border p-2 text-sm text-nowrap',
+                                group.selected.includes(option)
+                                  ? 'border-indigo-600 bg-indigo-600 text-white'
+                                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                              )}
+                              type='button'
+                              onMouseDown={e => {
+                                e.preventDefault()
+                              }}
+                              onClick={() => {
+                                group.onToggle(option)
+                              }}
+                            >
+                              {option}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null
+                )}
                 {filteredCommands.length > 0 && (
                   <ComboboxOptions
                     static
@@ -151,9 +207,12 @@ export default function CommandPalette({
                     ))}
                   </ComboboxOptions>
                 )}
-                {query && filteredCommands.length === 0 && (
-                  <p className='p-4 text-sm text-gray-500'>no results found</p>
-                )}
+                {(query || hasActiveFilters) &&
+                  filteredCommands.length === 0 && (
+                    <p className='p-4 text-sm text-gray-500'>
+                      no results found
+                    </p>
+                  )}
               </Combobox>
             </DialogPanel>
           </TransitionChild>
