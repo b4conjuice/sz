@@ -10,7 +10,6 @@ export const nav = [
   {
     href: '/wl',
     text: 'watchlist',
-    disabled: true,
   },
   {
     href: '/teams',
