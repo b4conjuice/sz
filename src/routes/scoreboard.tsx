@@ -6,7 +6,7 @@ import { useCopyToClipboard, useLocalStorage } from '@uidotdev/usehooks'
 import Scoreboard from '@/components/scoreboard'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
-import { SCOREBOARD_SCRIPT } from '@/lib/config'
+import { SCOREBOARD_SCRIPT } from '@/lib/scripts'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/scoreboard')({

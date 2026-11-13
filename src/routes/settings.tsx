@@ -8,7 +8,7 @@ import type { Team } from '@/lib/use-teams'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
 import { DEFAULT_TITLE } from '@/routes/__root'
-import { PLAYERS_SCRIPT } from '@/lib/config'
+import { PLAYERS_SCRIPT } from '@/lib/scripts'
 
 export const Route = createFileRoute('/settings')({
   component: RouteComponent,
