@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import {
   ArrowDownOnSquareIcon,
   PlusIcon,
+  StarIcon,
   TrashIcon,
 } from '@heroicons/react/20/solid'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -10,6 +11,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
 import { createTeam, useTeams } from '@/lib/use-teams'
+import { useFavoriteTeams } from '@/lib/use-favorite-teams'
 import ConfirmModal from '@/components/confirm-modal'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
@@ -25,6 +27,7 @@ function RouteComponent() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false)
   const { teams, saveTeam, deleteTeamByIndex } = useTeams()
+  const { isFavoriteTeam, toggleFavoriteTeam } = useFavoriteTeams()
   const [newTeamName, setNewTeamName] = useState('')
   const [teamToBeDeletedIndex, setTeamToBeDeletedIndex] = useState<
     number | null
@@ -55,6 +58,23 @@ function RouteComponent() {
                 >
                   {team.name}
                 </Link>
+                <button
+                  className={
+                    isFavoriteTeam(team.name)
+                      ? 'text-cb-yellow hover:text-cb-yellow/75'
+                      : 'text-cb-dusty-blue hover:text-cb-yellow/75'
+                  }
+                  title={
+                    isFavoriteTeam(team.name)
+                      ? 'remove favorite'
+                      : 'add favorite'
+                  }
+                  onClick={() => {
+                    toggleFavoriteTeam(team.name)
+                  }}
+                >
+                  <StarIcon className='h-6 w-6' />
+                </button>
                 <button
                   className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
                   onClick={() => {

@@ -6,6 +6,7 @@ import CommandPalette from '@/components/command-palette'
 import Menu from '@/components/menu'
 import { usePlayers } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
+import { useFavoriteTeams } from '@/lib/use-favorite-teams'
 import { useWatchlist } from '@/lib/use-watchlist'
 
 export const Route = createFileRoute('/')({
@@ -17,11 +18,14 @@ function Home() {
   const navigate = useNavigate()
   const { players } = usePlayers()
   const { teams } = useTeams()
+  const { favoriteTeams: favoriteTeamNames } = useFavoriteTeams()
   const { watchlist, addPlayerToWatchlist } = useWatchlist()
   const [isAddPlayerCommandPaletteOpen, setIsAddPlayerCommandPaletteOpen] =
     useState(false)
   const watchlistPlayerNames = new Set(watchlist.map(player => player.name))
-  const favoriteTeams = teams.slice(0, 5)
+  const favoriteTeams = teams
+    .map((team, index) => ({ team, index }))
+    .filter(({ team }) => favoriteTeamNames.includes(team.name))
   const recentWatchlistPlayers = watchlist.slice(-5).reverse()
   return (
     <>
@@ -90,10 +94,10 @@ function Home() {
               </Link>
             </div>
             {favoriteTeams.length === 0 ? (
-              <p>no teams yet</p>
+              <p>{teams.length === 0 ? 'no teams yet' : 'no favorite teams'}</p>
             ) : (
               <ul className='divide-cb-dusty-blue divide-y'>
-                {favoriteTeams.map((team, index) => (
+                {favoriteTeams.map(({ team, index }) => (
                   <li key={index} className='py-2 first:pt-0'>
                     <Link
                       to='/teams/$teamIndex'
@@ -112,7 +116,7 @@ function Home() {
       <footer className='bg-cb-dusty-blue sticky bottom-0 flex items-center justify-between px-2 pt-2 pb-6'>
         <div className='flex space-x-6'>
           <Menu
-            navigationCommands={favoriteTeams.map((team, index) => ({
+            navigationCommands={favoriteTeams.map(({ team, index }) => ({
               id: `go-${team.name}`,
               title: `go ${team.name}`,
               action: () => {
