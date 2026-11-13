@@ -7,14 +7,10 @@ import Menu from '@/components/menu'
 import { usePlayers } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
 import { useWatchlist } from '@/lib/use-watchlist'
-import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/')({
   component: Home,
   ssr: false,
-  head: () => ({
-    meta: [{ title: `home - ${DEFAULT_TITLE}` }],
-  }),
 })
 
 function Home() {
