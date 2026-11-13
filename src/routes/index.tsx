@@ -12,9 +12,6 @@ import { DEFAULT_TITLE } from '@/routes/__root'
 export const Route = createFileRoute('/')({
   component: Home,
   ssr: false,
-  head: () => ({
-    meta: [{ title: `home - ${DEFAULT_TITLE}` }],
-  }),
 })
 
 function Home() {
