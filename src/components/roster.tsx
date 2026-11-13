@@ -9,7 +9,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid'
 
-import CoreCommandPalette from '@/components/command-palette'
+import CommandPalette from '@/components/command-palette'
 import Modal from '@/components/modal'
 import NewPlayerModal from '@/components/new-player-modal'
 import type { Player } from '@/lib/use-players'
@@ -558,7 +558,7 @@ export function Roster({
           </div>
         </form>
       </Modal>
-      <CoreCommandPalette
+      <CommandPalette
         toggleIsOpenHotKey={'A'}
         placeholder='add player'
         filterGroups={[
@@ -601,7 +601,7 @@ export function Roster({
         isOpen={isAddPlayerCommandPaletteOpen}
         setIsOpen={setIsAddPlayerCommandPaletteOpen}
       />
-      <CoreCommandPalette
+      <CommandPalette
         toggleIsOpenHotKey={'R'}
         placeholder='drop player'
         commands={[

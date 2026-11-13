@@ -8,7 +8,7 @@ import {
   TrashIcon,
 } from '@heroicons/react/20/solid'
 
-import CoreCommandPalette from '@/components/command-palette'
+import CommandPalette from '@/components/command-palette'
 import ConfirmModal from '@/components/confirm-modal'
 import Modal from '@/components/modal'
 import type { Player } from '@/lib/use-players'
@@ -217,7 +217,7 @@ export function Draft({
         clear draft?
       </ConfirmModal>
       {!draft?.complete && (
-        <CoreCommandPalette
+        <CommandPalette
           toggleIsOpenHotKey={'D'}
           placeholder='draft player'
           commands={playerList.map((player, index) => ({

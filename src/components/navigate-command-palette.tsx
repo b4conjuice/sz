@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 
-import DefaultCommandPalette from '@/components/command-palette'
+import CommandPalette from '@/components/command-palette'
 import type { Command } from '@/components/command-palette'
 import { routeTree } from '@/routeTree.gen'
 
@@ -48,7 +48,7 @@ export default function NavigateCommandPalette({
   ]
 
   return (
-    <DefaultCommandPalette
+    <CommandPalette
       toggleIsOpenHotKey='N'
       placeholder='navigate to'
       commands={[...(commands ?? []), ...defaultCommands]}

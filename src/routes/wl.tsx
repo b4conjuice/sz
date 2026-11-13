@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
 
-import CoreCommandPalette from '@/components/command-palette'
+import CommandPalette from '@/components/command-palette'
 import ImportExportModal from '@/components/import-export-modal'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
@@ -149,7 +149,7 @@ function RouteComponent() {
           </button>
         </div>
       </footer>
-      <CoreCommandPalette
+      <CommandPalette
         toggleIsOpenHotKey={'A'}
         placeholder='add player'
         commands={players.map((player, index) => ({
