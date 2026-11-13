@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router'
-import { PlusIcon } from '@heroicons/react/20/solid'
+import { FlagIcon, PlusIcon } from '@heroicons/react/20/solid'
 import classNames from 'classnames'
 import { useLocalStorage } from '@uidotdev/usehooks'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -10,6 +10,7 @@ import NewPlayerModal from '@/components/new-player-modal'
 import useSearch from '@/lib/use-search'
 import { usePlayers } from '@/lib/use-players'
 import type { Player } from '@/lib/use-players'
+import { useWatchlist } from '@/lib/use-watchlist'
 import { DEFAULT_TITLE } from '@/routes/__root'
 
 export const Route = createFileRoute('/players/')({
@@ -31,6 +32,9 @@ function RouteComponent() {
   const query = q ?? ''
   const navigate = routeApi.useNavigate()
   const { players, savePlayer } = usePlayers()
+  const { watchlist, addPlayerToWatchlist, removePlayerFromWatchlist } =
+    useWatchlist()
+  const watchlistPlayerNames = new Set(watchlist.map(player => player.name))
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
   useHotkey('A', () => {
     setIsAddPlayerModalOpen(true)
@@ -172,8 +176,12 @@ function RouteComponent() {
           {taggedPlayers.map(player => {
             const index = players.indexOf(player)
             const rank = index + 1
+            const isWatched = watchlistPlayerNames.has(player.name)
             return (
-              <li key={index} className='flex gap-2 py-4 first:pt-0'>
+              <li
+                key={index}
+                className='flex items-center gap-2 py-4 first:pt-0'
+              >
                 <Link
                   to='/players/$playerIndex'
                   params={{
@@ -186,6 +194,26 @@ function RouteComponent() {
                   <span>{player.position.join(', ')}</span>
                   <span className='text-sm'>{player.team}</span>
                 </Link>
+                <button
+                  className={
+                    isWatched
+                      ? 'text-cb-yellow hover:text-cb-yellow/75'
+                      : 'text-cb-dusty-blue hover:text-cb-yellow/75'
+                  }
+                  type='button'
+                  title={
+                    isWatched ? 'remove from watchlist' : 'add to watchlist'
+                  }
+                  onClick={() => {
+                    if (isWatched) {
+                      removePlayerFromWatchlist(player.name)
+                    } else {
+                      addPlayerToWatchlist(player)
+                    }
+                  }}
+                >
+                  <FlagIcon className='h-6 w-6' />
+                </button>
               </li>
             )
           })}
