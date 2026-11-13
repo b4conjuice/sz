@@ -28,6 +28,12 @@ function RouteComponent() {
   const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false)
   const { teams, saveTeam, deleteTeamByIndex } = useTeams()
   const { isFavoriteTeam, toggleFavoriteTeam } = useFavoriteTeams()
+  const sortedTeams = teams
+    .map((team, index) => ({ team, index }))
+    .sort(
+      (a, b) =>
+        Number(isFavoriteTeam(b.team.name)) - Number(isFavoriteTeam(a.team.name))
+    )
   const [newTeamName, setNewTeamName] = useState('')
   const [teamToBeDeletedIndex, setTeamToBeDeletedIndex] = useState<
     number | null
@@ -44,7 +50,7 @@ function RouteComponent() {
           <p>no teams yet</p>
         ) : (
           <ul className='divide-cb-dusty-blue divide-y'>
-            {teams.map((team, index) => (
+            {sortedTeams.map(({ team, index }) => (
               <li
                 key={index}
                 className='flex items-center gap-2 py-4 first:pt-0'
