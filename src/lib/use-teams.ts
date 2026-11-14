@@ -119,6 +119,8 @@ const SLOT_ORDER: SlotTemplate[] = [
   G_SLOT,
   F_SLOT,
   U_SLOT,
+  U_SLOT,
+  U_SLOT,
   B_SLOT,
   B_SLOT,
   B_SLOT,
@@ -168,7 +170,7 @@ export const resizeSlots = (slots: Slot[], size: number): Slot[] => {
           ...normalSlots,
           ...Array.from({ length: size - normalSlots.length }, (_, index) =>
             createSlot(
-              NORMAL_SLOT_ORDER.at(normalSlots.length + index) ?? U_SLOT
+              NORMAL_SLOT_ORDER.at(normalSlots.length + index) ?? B_SLOT
             )
           ),
         ]
