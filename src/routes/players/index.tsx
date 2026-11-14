@@ -152,16 +152,8 @@ function RouteComponent() {
                       : 'border-cb-blue'
                   )}
                   onClick={() => {
-                    const selectedTagIndex = selectedTeams.findIndex(
-                      t => t === tag
-                    )
-                    const newSelectedTags = [...selectedTeams]
-                    if (selectedTagIndex > -1) {
-                      newSelectedTags.splice(selectedTagIndex, 1)
-                    } else {
-                      newSelectedTags.push(tag)
-                    }
-                    setSelectedTeams(newSelectedTags)
+                    const isSelected = selectedTeams.includes(tag)
+                    setSelectedTeams(isSelected ? [] : [tag])
                   }}
                 >
                   {tag}
