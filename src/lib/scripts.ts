@@ -5,6 +5,12 @@ export type Script = {
   defaultScript: string
 }
 
+export type RosterTeam = {
+  name: string
+  players: string[]
+  isOpponent: boolean
+}
+
 // go to scoreboard page for your league `https://fantasy.espn.com/basketball/league/scoreboard?leagueId=xxx`
 export const SCOREBOARD_SCRIPT = `
 scoreboard = {
@@ -72,6 +78,25 @@ players = Array.from(
 })
 `
 
+// go to the rosters page for your league: `https://fantasy.espn.com/basketball/league/rosters?leagueId=xxx`
+export const ROSTERS_SCRIPT = `
+rosters = Array.from(
+  document.querySelectorAll('.InnerLayout__child.roster-container')
+).map(teamEl => {
+  const name = teamEl.querySelector('.teamName').innerText.trim()
+  const players = Array.from(
+    teamEl.querySelectorAll('.player-column__athlete')
+  ).map(playerEl => playerEl.title)
+  // the user's team doesn't have a "Propose Trade" link
+  const isOpponent = teamEl.querySelector('.roster-trade') !== null
+  return {
+    name,
+    players,
+    isOpponent,
+  }
+})
+`
+
 export const scripts: Script[] = [
   {
     id: 'scoreboard',
@@ -86,5 +111,12 @@ export const scripts: Script[] = [
     description:
       'go to the projections page for your league: https://fantasy.espn.com/basketball/players/projections?leagueId=xxx or the draft strategy page (before draft): https://fantasy.espn.com/basketball/editdraftstrategy?leagueId=xxx',
     defaultScript: PLAYERS_SCRIPT,
+  },
+  {
+    id: 'rosters',
+    name: 'rosters',
+    description:
+      'go to the rosters page for your league: https://fantasy.espn.com/basketball/league/rosters?leagueId=xxx',
+    defaultScript: ROSTERS_SCRIPT,
   },
 ]
