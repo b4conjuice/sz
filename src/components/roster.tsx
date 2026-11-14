@@ -577,7 +577,9 @@ export function Roster({
             options: playerTeams,
             selected: selectedTeams,
             onToggle: playerTeam => {
-              setSelectedTeams(prev => toggleFilterValue(prev, playerTeam))
+              setSelectedTeams(prev =>
+                prev.includes(playerTeam) ? [] : [playerTeam]
+              )
             },
           },
         ]}
