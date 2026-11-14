@@ -185,7 +185,12 @@ export function Roster({
       isIrSlot(movingSlot) &&
       !isIrSlot(targetSlot)
     ) {
-      return false
+      const targetPlayer = players.find(
+        player => player.name === targetSlot.player
+      )
+      if (!targetPlayer || !isPlayerEligibleForSlot(targetPlayer, movingSlot)) {
+        return false
+      }
     }
     return true
   }
