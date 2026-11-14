@@ -83,9 +83,12 @@ export function Roster({
   ]
   const playerTeams = [
     ...new Set(
-      playerList.reduce((currentTeams: string[], currentPlayer: Player) => {
-        return [...currentTeams, currentPlayer.team]
-      }, [])
+      playerList.reduce(
+        (currentTeams: string[], currentPlayer: Player) => {
+          return [...currentTeams, currentPlayer.team]
+        },
+        [...selectedTeams]
+      )
     ),
   ].filter(playerTeam => Boolean(playerTeam))
   const filteredPlayerList = playerList.filter(
