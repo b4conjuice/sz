@@ -31,6 +31,15 @@ const toggleFilterValue = (values: string[], value: string) =>
     ? values.filter(currentValue => currentValue !== value)
     : [...values, value]
 
+const slotsMatch = (a: Slot[], b: Slot[]) =>
+  a.length === b.length &&
+  a.every(
+    (slot, index) =>
+      slot.label === b.at(index)?.label &&
+      slot.eligiblePositions.join(',') ===
+        b.at(index)?.eligiblePositions.join(',')
+  )
+
 export function Roster({
   team,
   teamIndex,
@@ -464,8 +473,9 @@ export function Roster({
             {SLOT_TEMPLATES.map(template => (
               <button
                 key={template.name}
-                className='text-cb-yellow hover:text-cb-yellow/75'
+                className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
                 type='button'
+                disabled={slotsMatch(slots, template.slots)}
                 onClick={() => {
                   saveTeam({
                     ...team,
