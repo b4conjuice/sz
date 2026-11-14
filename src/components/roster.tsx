@@ -17,6 +17,7 @@ import {
   DEFAULT_SLOTS,
   EMPTY_SLOT_PLAYER,
   NORMAL_SLOT_OPTIONS,
+  SLOT_TEMPLATES,
   createEmptySlot,
   getRosterSize,
   isIrSlot,
@@ -459,6 +460,24 @@ export function Roster({
             setIsRosterSettingsModalOpen(false)
           }}
         >
+          <div className='flex items-center gap-4'>
+            {SLOT_TEMPLATES.map(template => (
+              <button
+                key={template.name}
+                className='text-cb-yellow hover:text-cb-yellow/75'
+                type='button'
+                onClick={() => {
+                  saveTeam({
+                    ...team,
+                    slots: template.slots.map(slot => ({ ...slot })),
+                  })
+                  setIsRosterSettingsModalOpen(false)
+                }}
+              >
+                {template.name}
+              </button>
+            ))}
+          </div>
           <label htmlFor='roster-size'>
             roster size
             <input

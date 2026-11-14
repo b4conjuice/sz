@@ -177,6 +177,24 @@ export const resizeSlots = (slots: Slot[], size: number): Slot[] => {
   return [...resizedNormalSlots, ...irSlots]
 }
 
+export const SLOT_TEMPLATES: { name: string; slots: Slot[] }[] = [
+  {
+    name: 'fantasy',
+    slots: [
+      ...resizeSlots(DEFAULT_SLOTS, 14),
+      createSlot(IR_SLOT),
+      createSlot(IR_SLOT),
+    ],
+  },
+  {
+    name: 'nba',
+    slots: [
+      ...DEFAULT_SLOTS.map(slot => ({ ...slot })),
+      ...Array.from({ length: 10 }, () => createSlot(B_SLOT)),
+    ],
+  },
+]
+
 const getEligibleSlotCount = (player: Player, slots: Slot[]): number =>
   slots.filter(
     slot =>
