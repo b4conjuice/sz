@@ -23,7 +23,7 @@ export default function Modal({
     <Transition show={isOpen} as={Fragment}>
       <Dialog
         onClose={setIsOpen}
-        className='fixed inset-0 flex flex-col justify-end overflow-y-auto p-4'
+        className='fixed inset-0 flex flex-col justify-end p-4'
       >
         <TransitionChild
           enter='duration-300 ease-out'
@@ -43,7 +43,7 @@ export default function Modal({
           leaveFrom='opacity-100 scale-100'
           leaveTo='opacity-0 scale-95'
         >
-          <DialogPanel className='dark:bg-cb-dusty-blue relative z-10 rounded-lg p-4 dark:text-gray-100'>
+          <DialogPanel className='dark:bg-cb-dusty-blue relative z-10 max-h-full overflow-y-auto overscroll-contain rounded-lg p-4 dark:text-gray-100'>
             <button
               type='button'
               onClick={() => setIsOpen(false)}
