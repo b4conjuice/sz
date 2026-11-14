@@ -63,7 +63,7 @@ function RouteComponent() {
       const { position } = player
       const playerTags = [...position]
       return [...currentAllTags, ...playerTags]
-    }, selectedPositions),
+    }, []),
   ]
   const allPositionTags = [...new Set([...positions, 'no-position'])]
 
