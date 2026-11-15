@@ -135,7 +135,11 @@ function RouteComponent() {
           />
         ) : tab === 'rosters' ? (
           <>
-            <Rosters team={team} updateTeam={updateTeam} />
+            <Rosters
+              team={team}
+              updateTeam={updateTeam}
+              playerList={playerList}
+            />
           </>
         ) : tab === 'import-export' ? (
           <>

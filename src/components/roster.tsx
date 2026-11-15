@@ -49,6 +49,7 @@ export function Roster({
   deletePlayerByIndex,
   savePlayer,
   saveTeam,
+  readOnly = false,
 }: {
   team: TeamType
   teamIndex: number
@@ -65,6 +66,7 @@ export function Roster({
   }) => void
   savePlayer: (args: { player: Player; index?: number }) => void
   saveTeam: (team: TeamType) => void
+  readOnly?: boolean
 }) {
   const [isRosterSettingsModalOpen, setIsRosterSettingsModalOpen] =
     useState(false)
@@ -295,46 +297,48 @@ export function Roster({
   }
   return (
     <>
-      <div className='flex'>
-        <h2 className='grow'>roster</h2>
-        <div className='flex space-x-6'>
-          <button
-            className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
-            onClick={() => {
-              if (replacePlayer) {
-                setPendingPlayer(null)
-              }
-              setReplacePlayer(!replacePlayer)
-            }}
-          >
-            {replacePlayer ? (
-              <XMarkIcon className='h-6 w-6' />
-            ) : (
-              <TrashIcon className='h-6 w-6' />
-            )}
-          </button>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-            onClick={() => {
-              setNewRosterSize(rosterSize)
-              setNewSlots(sizedSlots)
-              setIsRosterSettingsModalOpen(true)
-            }}
-          >
-            <Cog6ToothIcon className='h-6 w-6' />
-          </button>
-          <button
-            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-            type='button'
-            onClick={() => {
-              setIsAddPlayerCommandPaletteOpen(true)
-            }}
-          >
-            <PlusIcon className='h-6 w-6' />
-          </button>
+      {!readOnly && (
+        <div className='flex'>
+          <h2 className='grow'>roster</h2>
+          <div className='flex space-x-6'>
+            <button
+              className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+              onClick={() => {
+                if (replacePlayer) {
+                  setPendingPlayer(null)
+                }
+                setReplacePlayer(!replacePlayer)
+              }}
+            >
+              {replacePlayer ? (
+                <XMarkIcon className='h-6 w-6' />
+              ) : (
+                <TrashIcon className='h-6 w-6' />
+              )}
+            </button>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+              onClick={() => {
+                setNewRosterSize(rosterSize)
+                setNewSlots(sizedSlots)
+                setIsRosterSettingsModalOpen(true)
+              }}
+            >
+              <Cog6ToothIcon className='h-6 w-6' />
+            </button>
+            <button
+              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+              type='button'
+              onClick={() => {
+                setIsAddPlayerCommandPaletteOpen(true)
+              }}
+            >
+              <PlusIcon className='h-6 w-6' />
+            </button>
+          </div>
         </div>
-      </div>
-      {pendingPlayer && (
+      )}
+      {!readOnly && pendingPlayer && (
         <div className='bg-cb-off-blue flex items-center gap-2 rounded-lg px-3 py-2'>
           <PlusIcon className='text-cb-yellow h-5 w-5 shrink-0' />
           <span className='text-cb-yellow'>{pendingPlayer.name}</span>
@@ -381,302 +385,314 @@ export function Roster({
                   </>
                 )}
               </span>
-              <span className='flex items-center space-x-6'>
-                {canMoveHere && (
-                  <button
-                    className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-                    type='button'
-                    onClick={() => {
-                      movePlayer(movingSlotIndex, slotIndex)
-                    }}
-                  >
-                    move here
-                  </button>
-                )}
-                {canReplaceHere && (
-                  <button
-                    className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
-                    type='button'
-                    onClick={() => {
-                      dropPlayerAndMove(movingSlotIndex, slotIndex)
-                    }}
-                  >
-                    <TrashIcon className='h-6 w-6' />
-                  </button>
-                )}
-                {!replacePlayer && movingSlotIndex === null && !isEmpty && (
-                  <button
-                    className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-                    onClick={() => {
-                      setMovingSlotIndex(slotIndex)
-                    }}
-                  >
-                    <ArrowsUpDownIcon className='h-6 w-6' />
-                  </button>
-                )}
-                {isMovingSlot && (
-                  <button
-                    className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-                    onClick={() => {
-                      setMovingSlotIndex(null)
-                    }}
-                  >
-                    <XMarkIcon className='h-6 w-6' />
-                  </button>
-                )}
-                {replacePlayer &&
-                  !isEmpty &&
-                  (!pendingPlayer || !isIrSlot(slot)) && (
+              {!readOnly && (
+                <span className='flex items-center space-x-6'>
+                  {canMoveHere && (
+                    <button
+                      className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+                      type='button'
+                      onClick={() => {
+                        movePlayer(movingSlotIndex, slotIndex)
+                      }}
+                    >
+                      move here
+                    </button>
+                  )}
+                  {canReplaceHere && (
                     <button
                       className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+                      type='button'
                       onClick={() => {
-                        if (pendingPlayer) {
-                          replacePlayerOnTeam({
-                            teamIndex,
-                            player: pendingPlayer,
-                            replacedPlayerName: slot.player,
-                          })
-                          setPendingPlayer(null)
-                          setReplacePlayer(false)
-                          return
-                        }
-                        const newTeam = {
-                          ...team,
-                          players: players.filter(
-                            currentPlayer => currentPlayer.name !== slot.player
-                          ),
-                          slots: toRealSlots(
-                            visibleSlots.map((currentSlot, index) =>
-                              index === slotIndex
-                                ? { ...currentSlot, player: EMPTY_SLOT_PLAYER }
-                                : currentSlot
-                            )
-                          ),
-                        }
-                        saveTeam(
-                          player
-                            ? recordTransactions(newTeam, [
-                                { type: 'drop', players: [player] },
-                              ])
-                            : newTeam
-                        )
+                        dropPlayerAndMove(movingSlotIndex, slotIndex)
                       }}
                     >
                       <TrashIcon className='h-6 w-6' />
                     </button>
                   )}
-              </span>
+                  {!replacePlayer && movingSlotIndex === null && !isEmpty && (
+                    <button
+                      className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+                      onClick={() => {
+                        setMovingSlotIndex(slotIndex)
+                      }}
+                    >
+                      <ArrowsUpDownIcon className='h-6 w-6' />
+                    </button>
+                  )}
+                  {isMovingSlot && (
+                    <button
+                      className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+                      onClick={() => {
+                        setMovingSlotIndex(null)
+                      }}
+                    >
+                      <XMarkIcon className='h-6 w-6' />
+                    </button>
+                  )}
+                  {replacePlayer &&
+                    !isEmpty &&
+                    (!pendingPlayer || !isIrSlot(slot)) && (
+                      <button
+                        className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+                        onClick={() => {
+                          if (pendingPlayer) {
+                            replacePlayerOnTeam({
+                              teamIndex,
+                              player: pendingPlayer,
+                              replacedPlayerName: slot.player,
+                            })
+                            setPendingPlayer(null)
+                            setReplacePlayer(false)
+                            return
+                          }
+                          const newTeam = {
+                            ...team,
+                            players: players.filter(
+                              currentPlayer =>
+                                currentPlayer.name !== slot.player
+                            ),
+                            slots: toRealSlots(
+                              visibleSlots.map((currentSlot, index) =>
+                                index === slotIndex
+                                  ? {
+                                      ...currentSlot,
+                                      player: EMPTY_SLOT_PLAYER,
+                                    }
+                                  : currentSlot
+                              )
+                            ),
+                          }
+                          saveTeam(
+                            player
+                              ? recordTransactions(newTeam, [
+                                  { type: 'drop', players: [player] },
+                                ])
+                              : newTeam
+                          )
+                        }}
+                      >
+                        <TrashIcon className='h-6 w-6' />
+                      </button>
+                    )}
+                </span>
+              )}
             </li>
           )
         })}
       </ul>
-      <Modal
-        title='roster settings'
-        isOpen={isRosterSettingsModalOpen}
-        setIsOpen={setIsRosterSettingsModalOpen}
-      >
-        <form
-          className='space-y-3'
-          onSubmit={e => {
-            e.preventDefault()
-            saveTeam({
-              ...team,
-              slots: resizeSlots(newSlots, newRosterSize),
-            })
-            setIsRosterSettingsModalOpen(false)
-          }}
-        >
-          <div className='flex items-center gap-4'>
-            {SLOT_TEMPLATES.map(template => (
-              <button
-                key={template.name}
-                className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-                type='button'
-                disabled={slotsMatch(slots, template.slots)}
-                onClick={() => {
-                  saveTeam({
-                    ...team,
-                    slots: template.slots.map(slot => ({ ...slot })),
-                  })
-                  setIsRosterSettingsModalOpen(false)
-                }}
-              >
-                {template.name}
-              </button>
-            ))}
-          </div>
-          <label htmlFor='roster-size'>
-            roster size
-            <input
-              id='roster-size'
-              className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-              type='number'
-              autoFocus
-              min={1}
-              value={newRosterSize}
-              disabled={draftRosterSize !== null}
-              onChange={e => {
-                const size = Math.max(1, Number(e.target.value))
-                setNewRosterSize(size)
-                setNewSlots(prev => resizeSlots(prev, size))
+      {!readOnly && (
+        <>
+          <Modal
+            title='roster settings'
+            isOpen={isRosterSettingsModalOpen}
+            setIsOpen={setIsRosterSettingsModalOpen}
+          >
+            <form
+              className='space-y-3'
+              onSubmit={e => {
+                e.preventDefault()
+                saveTeam({
+                  ...team,
+                  slots: resizeSlots(newSlots, newRosterSize),
+                })
+                setIsRosterSettingsModalOpen(false)
               }}
-            />
-          </label>
-          {draftRosterSize !== null && (
-            <p className='opacity-75'>matches completed draft size</p>
-          )}
-          <ul className='space-y-2'>
-            {newSlots.map((slot, index) =>
-              isIrSlot(slot) ? (
-                <li key={index} className='flex items-center gap-2'>
-                  <span className='w-20 shrink-0'>slot {index + 1}</span>
-                  <span className='grow'>IR</span>
+            >
+              <div className='flex items-center gap-4'>
+                {SLOT_TEMPLATES.map(template => (
                   <button
-                    className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+                    key={template.name}
+                    className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
                     type='button'
+                    disabled={slotsMatch(slots, template.slots)}
                     onClick={() => {
-                      setNewSlots(prev =>
-                        prev.filter((_, slotIndex) => slotIndex !== index)
-                      )
+                      saveTeam({
+                        ...team,
+                        slots: template.slots.map(slot => ({ ...slot })),
+                      })
+                      setIsRosterSettingsModalOpen(false)
                     }}
                   >
-                    <TrashIcon className='h-6 w-6' />
+                    {template.name}
                   </button>
-                </li>
-              ) : (
-                <li key={index} className='flex items-center gap-2'>
-                  <label
-                    htmlFor={`slot-position-${index}`}
-                    className='w-20 shrink-0'
-                  >
-                    slot {index + 1}
-                  </label>
-                  <select
-                    id={`slot-position-${index}`}
-                    className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
-                    value={slot.label}
-                    onChange={e => {
-                      const template = NORMAL_SLOT_OPTIONS.find(
-                        option => option.label === e.target.value
-                      )
-                      if (!template) {
-                        return
-                      }
-                      setNewSlots(prev =>
-                        prev.map((currentSlot, currentIndex) =>
-                          currentIndex === index
-                            ? {
-                                ...currentSlot,
-                                label: template.label,
-                                eligiblePositions: [
-                                  ...template.eligiblePositions,
-                                ],
-                              }
-                            : currentSlot
-                        )
-                      )
-                    }}
-                  >
-                    {NORMAL_SLOT_OPTIONS.map(option => (
-                      <option key={option.label} value={option.label}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </li>
-              )
-            )}
-          </ul>
-          <div className='flex items-center gap-4'>
-            <button
-              className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
-              type='button'
-              onClick={() => {
-                setNewSlots(prev => [...prev, createEmptySlot('IR')])
-              }}
-            >
-              add IR slot
-            </button>
-            <button
-              className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
-              type='submit'
-              disabled={newRosterSize === rosterSize && !slotsHaveChanged}
-            >
-              <ArrowDownOnSquareIcon className='h-6 w-6' /> save
-            </button>
-          </div>
-        </form>
-      </Modal>
-      <CommandPalette
-        toggleIsOpenHotKey={'A'}
-        placeholder='add player'
-        filterGroups={[
-          {
-            id: 'position',
-            label: 'position',
-            options: positions,
-            selected: selectedPositions,
-            onToggle: position => {
-              setSelectedPositions(prev => toggleFilterValue(prev, position))
-            },
-          },
-          {
-            id: 'team',
-            label: 'team',
-            options: playerTeams,
-            selected: selectedTeams,
-            onToggle: playerTeam => {
-              setSelectedTeams(prev =>
-                prev.includes(playerTeam) ? [] : [playerTeam]
-              )
-            },
-          },
-        ]}
-        commands={[
-          {
-            id: 'add-new-player',
-            title: 'create new player',
-            action: () => {
-              setIsAddNewPlayerModalOpen(true)
-            },
-          },
-          ...filteredPlayerList.map((player, index) => ({
-            id: `add-player-${index}`,
-            title: `add ${player.name} - ${player.position.join(', ')}`,
-            disabled: playerNamesOnTeam.has(player.name),
-            action: () => {
+                ))}
+              </div>
+              <label htmlFor='roster-size'>
+                roster size
+                <input
+                  id='roster-size'
+                  className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+                  type='number'
+                  autoFocus
+                  min={1}
+                  value={newRosterSize}
+                  disabled={draftRosterSize !== null}
+                  onChange={e => {
+                    const size = Math.max(1, Number(e.target.value))
+                    setNewRosterSize(size)
+                    setNewSlots(prev => resizeSlots(prev, size))
+                  }}
+                />
+              </label>
+              {draftRosterSize !== null && (
+                <p className='opacity-75'>matches completed draft size</p>
+              )}
+              <ul className='space-y-2'>
+                {newSlots.map((slot, index) =>
+                  isIrSlot(slot) ? (
+                    <li key={index} className='flex items-center gap-2'>
+                      <span className='w-20 shrink-0'>slot {index + 1}</span>
+                      <span className='grow'>IR</span>
+                      <button
+                        className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+                        type='button'
+                        onClick={() => {
+                          setNewSlots(prev =>
+                            prev.filter((_, slotIndex) => slotIndex !== index)
+                          )
+                        }}
+                      >
+                        <TrashIcon className='h-6 w-6' />
+                      </button>
+                    </li>
+                  ) : (
+                    <li key={index} className='flex items-center gap-2'>
+                      <label
+                        htmlFor={`slot-position-${index}`}
+                        className='w-20 shrink-0'
+                      >
+                        slot {index + 1}
+                      </label>
+                      <select
+                        id={`slot-position-${index}`}
+                        className='bg-cb-blue w-full disabled:pointer-events-none disabled:opacity-25'
+                        value={slot.label}
+                        onChange={e => {
+                          const template = NORMAL_SLOT_OPTIONS.find(
+                            option => option.label === e.target.value
+                          )
+                          if (!template) {
+                            return
+                          }
+                          setNewSlots(prev =>
+                            prev.map((currentSlot, currentIndex) =>
+                              currentIndex === index
+                                ? {
+                                    ...currentSlot,
+                                    label: template.label,
+                                    eligiblePositions: [
+                                      ...template.eligiblePositions,
+                                    ],
+                                  }
+                                : currentSlot
+                            )
+                          )
+                        }}
+                      >
+                        {NORMAL_SLOT_OPTIONS.map(option => (
+                          <option key={option.label} value={option.label}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </li>
+                  )
+                )}
+              </ul>
+              <div className='flex items-center gap-4'>
+                <button
+                  className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+                  type='button'
+                  onClick={() => {
+                    setNewSlots(prev => [...prev, createEmptySlot('IR')])
+                  }}
+                >
+                  add IR slot
+                </button>
+                <button
+                  className='text-cb-yellow hover:text-cb-yellow/75 flex items-center gap-2 disabled:pointer-events-none disabled:opacity-25'
+                  type='submit'
+                  disabled={newRosterSize === rosterSize && !slotsHaveChanged}
+                >
+                  <ArrowDownOnSquareIcon className='h-6 w-6' /> save
+                </button>
+              </div>
+            </form>
+          </Modal>
+          <CommandPalette
+            toggleIsOpenHotKey={'A'}
+            placeholder='add player'
+            filterGroups={[
+              {
+                id: 'position',
+                label: 'position',
+                options: positions,
+                selected: selectedPositions,
+                onToggle: position => {
+                  setSelectedPositions(prev =>
+                    toggleFilterValue(prev, position)
+                  )
+                },
+              },
+              {
+                id: 'team',
+                label: 'team',
+                options: playerTeams,
+                selected: selectedTeams,
+                onToggle: playerTeam => {
+                  setSelectedTeams(prev =>
+                    prev.includes(playerTeam) ? [] : [playerTeam]
+                  )
+                },
+              },
+            ]}
+            commands={[
+              {
+                id: 'add-new-player',
+                title: 'create new player',
+                action: () => {
+                  setIsAddNewPlayerModalOpen(true)
+                },
+              },
+              ...filteredPlayerList.map((player, index) => ({
+                id: `add-player-${index}`,
+                title: `add ${player.name} - ${player.position.join(', ')}`,
+                disabled: playerNamesOnTeam.has(player.name),
+                action: () => {
+                  addPlayer(player)
+                },
+              })),
+            ]}
+            isOpen={isAddPlayerCommandPaletteOpen}
+            setIsOpen={setIsAddPlayerCommandPaletteOpen}
+          />
+          <CommandPalette
+            toggleIsOpenHotKey={'R'}
+            placeholder='drop player'
+            commands={[
+              ...players.map((player, index) => ({
+                id: `drop-player-${index}`,
+                title: `draft ${player.name} - ${player.position.join(', ')}`,
+                action: () => {
+                  deletePlayerByIndex({
+                    teamIndex,
+                    playerIndex: index,
+                  })
+                },
+              })),
+            ]}
+          />
+          <NewPlayerModal
+            isOpen={isAddNewPlayerModalOpen}
+            setIsOpen={setIsAddNewPlayerModalOpen}
+            playerList={playerList}
+            onSubmit={player => {
+              savePlayer({ player })
               addPlayer(player)
-            },
-          })),
-        ]}
-        isOpen={isAddPlayerCommandPaletteOpen}
-        setIsOpen={setIsAddPlayerCommandPaletteOpen}
-      />
-      <CommandPalette
-        toggleIsOpenHotKey={'R'}
-        placeholder='drop player'
-        commands={[
-          ...players.map((player, index) => ({
-            id: `drop-player-${index}`,
-            title: `draft ${player.name} - ${player.position.join(', ')}`,
-            action: () => {
-              deletePlayerByIndex({
-                teamIndex,
-                playerIndex: index,
-              })
-            },
-          })),
-        ]}
-      />
-      <NewPlayerModal
-        isOpen={isAddNewPlayerModalOpen}
-        setIsOpen={setIsAddNewPlayerModalOpen}
-        playerList={playerList}
-        onSubmit={player => {
-          savePlayer({ player })
-          addPlayer(player)
-        }}
-      />
+            }}
+          />
+        </>
+      )}
     </>
   )
 }
