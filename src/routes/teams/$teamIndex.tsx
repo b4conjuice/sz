@@ -5,6 +5,7 @@ import {
   ArrowUpTrayIcon,
   PencilSquareIcon,
   TableCellsIcon,
+  TrophyIcon,
   UserGroupIcon,
 } from '@heroicons/react/20/solid'
 
@@ -20,10 +21,18 @@ import type {
   Team,
   Transaction,
 } from '@/lib/use-teams'
+import type { RosterTeam } from '@/lib/scripts'
 import { Depth, Draft, Roster, TransactionHistory } from '@/components/team'
 import { DEFAULT_TITLE } from '@/routes/__root'
+import Rosters from '@/components/rosters'
 
-const TABS = ['default', 'history', 'draft', 'import-export'] as const
+const TABS = [
+  'default',
+  'history',
+  'rosters',
+  'draft',
+  'import-export',
+] as const
 type Tab = (typeof TABS)[number]
 
 const isTab = (value: unknown): value is Tab => TABS.includes(value as Tab)
@@ -124,6 +133,10 @@ function RouteComponent() {
               undoLastTransaction({ teamIndex })
             }}
           />
+        ) : tab === 'rosters' ? (
+          <>
+            <Rosters team={team} updateTeam={updateTeam} />
+          </>
         ) : tab === 'import-export' ? (
           <>
             <section className='flex flex-col gap-3'>
@@ -159,6 +172,18 @@ function RouteComponent() {
                 object={draft}
                 setObject={(newDraft: DraftType | undefined) => {
                   updateTeam({ draft: newDraft })
+                }}
+              />
+            </section>
+            <section className='flex flex-col gap-3'>
+              <h3>rosters</h3>
+              <ImportExport
+                object={team.rosters}
+                setObject={(newRosters: RosterTeam[] | undefined) => {
+                  updateTeam({
+                    rosters: newRosters,
+                    rostersUpdatedAt: new Date(),
+                  })
                 }}
               />
             </section>
@@ -241,6 +266,16 @@ function RouteComponent() {
             disabled={tab === 'draft'}
           >
             <TableCellsIcon className='h-6 w-6' />
+          </button>
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:text-cb-light-blue disabled:pointer-events-none'
+            type='button'
+            onClick={() => {
+              setTab('rosters')
+            }}
+            disabled={tab === 'rosters'}
+          >
+            <TrophyIcon className='h-6 w-6' />
           </button>
           <button
             className='text-cb-yellow hover:text-cb-yellow/75 disabled:text-cb-light-blue disabled:pointer-events-none'

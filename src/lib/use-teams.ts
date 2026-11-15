@@ -1,6 +1,7 @@
 import { useLocalStorage } from '@uidotdev/usehooks'
 
 import type { Player } from '@/lib/use-players'
+import type { RosterTeam } from '@/lib/scripts'
 
 const DEFAULT_DRAFT_TEAMS = 12
 const DEFAULT_DRAFT_PICK = 1
@@ -32,6 +33,8 @@ export type Team = {
   draft?: Draft
   slots?: Slot[]
   transactions?: Transaction[]
+  rosters?: RosterTeam[]
+  rostersUpdatedAt?: Date
 }
 
 export const EMPTY_SLOT_PLAYER = 'empty'
