@@ -72,6 +72,7 @@ function RouteComponent() {
     addPlayerToDraft,
     toggleCompleteDraft,
     overwriteDraft,
+    undoLastTransaction,
   } = useTeams()
   const { players: playerList, savePlayer } = usePlayers()
   const [isEditNameModalOpen, setIsEditNameModalOpen] = useState(false)
@@ -117,7 +118,12 @@ function RouteComponent() {
             />
           </>
         ) : tab === 'history' ? (
-          <TransactionHistory transactions={team.transactions} />
+          <TransactionHistory
+            transactions={team.transactions}
+            onUndo={() => {
+              undoLastTransaction({ teamIndex })
+            }}
+          />
         ) : tab === 'import-export' ? (
           <>
             <section className='flex flex-col gap-3'>

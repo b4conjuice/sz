@@ -1,3 +1,5 @@
+import { ArrowUturnLeftIcon } from '@heroicons/react/20/solid'
+
 import type { Transaction } from '@/lib/use-teams'
 
 const TRANSACTION_LABELS: Record<Transaction['type'], string> = {
@@ -17,15 +19,29 @@ const formatDate = (date: Date) =>
 
 export function TransactionHistory({
   transactions = [],
+  onUndo,
 }: {
   transactions?: Transaction[]
+  onUndo?: () => void
 }) {
   const sortedTransactions = [...transactions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
   return (
     <>
-      <h2>transactions</h2>
+      <div className='flex items-center justify-between'>
+        <h2>transactions</h2>
+        {onUndo && transactions.length > 0 && (
+          <button
+            className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
+            type='button'
+            title='undo last transaction'
+            onClick={onUndo}
+          >
+            <ArrowUturnLeftIcon className='h-6 w-6' />
+          </button>
+        )}
+      </div>
       {sortedTransactions.length === 0 ? (
         <p className='opacity-75'>no transactions yet</p>
       ) : (

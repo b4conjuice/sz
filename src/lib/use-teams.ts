@@ -50,6 +50,89 @@ export const recordTransactions = (
   ],
 })
 
+const clearPlayersFromSlots = (
+  slots: Slot[],
+  playerNames: Set<string>
+): Slot[] =>
+  slots.map(slot =>
+    playerNames.has(slot.player) ? { ...slot, player: EMPTY_SLOT_PLAYER } : slot
+  )
+
+const removePlayersFromRoster = (team: Team, players: Player[]): Team => {
+  const playerNames = new Set(players.map(player => player.name))
+  return {
+    ...team,
+    players: team.players.filter(player => !playerNames.has(player.name)),
+    slots: clearPlayersFromSlots(team.slots ?? DEFAULT_SLOTS, playerNames),
+  }
+}
+
+const addPlayersBackToRoster = (team: Team, players: Player[]): Team => {
+  const existingPlayerNames = new Set(team.players.map(player => player.name))
+  const newPlayers = [
+    ...team.players,
+    ...players.filter(player => !existingPlayerNames.has(player.name)),
+  ]
+  return {
+    ...team,
+    players: newPlayers,
+    slots: fillEmptySlotsWithPlayers(team.slots ?? DEFAULT_SLOTS, newPlayers),
+  }
+}
+
+const movePlayerOutOfIr = (team: Team, player: Player): Team => {
+  const slots = clearPlayersFromSlots(
+    team.slots ?? DEFAULT_SLOTS,
+    new Set([player.name])
+  )
+  return {
+    ...team,
+    slots: fillEmptySlotsWithPlayers(slots, team.players),
+  }
+}
+
+const movePlayerIntoIr = (team: Team, player: Player): Team => {
+  const slots = clearPlayersFromSlots(
+    team.slots ?? DEFAULT_SLOTS,
+    new Set([player.name])
+  )
+  const emptyIrSlotIndex = slots.findIndex(
+    slot => isIrSlot(slot) && slot.player === EMPTY_SLOT_PLAYER
+  )
+  return {
+    ...team,
+    slots:
+      emptyIrSlotIndex === -1
+        ? [...slots, { ...createEmptySlot('IR'), player: player.name }]
+        : slots.map((slot, index) =>
+            index === emptyIrSlotIndex ? { ...slot, player: player.name } : slot
+          ),
+  }
+}
+
+export const undoTransaction = (team: Team, transaction: Transaction): Team => {
+  switch (transaction.type) {
+    case 'add':
+      return removePlayersFromRoster(team, transaction.players)
+    case 'drop':
+      return addPlayersBackToRoster(team, transaction.players)
+    case 'add/drop': {
+      const addedPlayer = transaction.players.at(0)
+      const droppedPlayer = transaction.players.at(1)
+      const withoutAddedPlayer = addedPlayer
+        ? removePlayersFromRoster(team, [addedPlayer])
+        : team
+      return droppedPlayer
+        ? addPlayersBackToRoster(withoutAddedPlayer, [droppedPlayer])
+        : withoutAddedPlayer
+    }
+    case 'move-into-ir':
+      return transaction.players.reduce(movePlayerOutOfIr, team)
+    case 'move-out-of-ir':
+      return transaction.players.reduce(movePlayerIntoIr, team)
+  }
+}
+
 export type SlotTemplate = Omit<Slot, 'player'>
 
 const PG_SLOT: SlotTemplate = {
@@ -199,7 +282,9 @@ const getEligibleSlotCount = (player: Player, slots: Slot[]): number =>
   slots.filter(
     slot =>
       !isIrSlot(slot) &&
-      slot.eligiblePositions.some(position => player.position.includes(position))
+      slot.eligiblePositions.some(position =>
+        player.position.includes(position)
+      )
   ).length
 
 const getSlotPriority = (player: Player, slot: Slot): number => {
@@ -238,7 +323,8 @@ export const fillSlotsWithPlayers = (
     .map(slot => ({ ...slot, player: EMPTY_SLOT_PLAYER }))
   const sortedPlayers = [...players].sort(
     (a, b) =>
-      getEligibleSlotCount(a, filledSlots) - getEligibleSlotCount(b, filledSlots)
+      getEligibleSlotCount(a, filledSlots) -
+      getEligibleSlotCount(b, filledSlots)
   )
   for (const player of sortedPlayers) {
     let bestSlotIndex = -1
@@ -537,6 +623,22 @@ export function useTeams() {
       return newTeams
     })
   }
+  const undoLastTransaction = ({ teamIndex }: { teamIndex: number }) => {
+    setTeams(prev => {
+      const team = prev.at(teamIndex)
+      const transactions = team?.transactions ?? []
+      const lastTransaction = transactions.at(-1)
+      if (teamIndex < 0 || !team || !lastTransaction) {
+        return prev
+      }
+      const newTeams = [...prev]
+      newTeams[teamIndex] = {
+        ...undoTransaction(team, lastTransaction),
+        transactions: transactions.slice(0, -1),
+      }
+      return newTeams
+    })
+  }
   return {
     teams,
     overwriteTeams,
@@ -549,5 +651,6 @@ export function useTeams() {
     deletePlayerFromDraftByIndex,
     toggleCompleteDraft,
     overwriteDraft,
+    undoLastTransaction,
   }
 }
