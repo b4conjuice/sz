@@ -334,6 +334,18 @@ export function Roster({
           </button>
         </div>
       </div>
+      {pendingPlayer && (
+        <div className='bg-cb-off-blue flex items-center gap-2 rounded-lg px-3 py-2'>
+          <PlusIcon className='text-cb-yellow h-5 w-5 shrink-0' />
+          <span className='text-cb-yellow'>{pendingPlayer.name}</span>
+          <span className='opacity-75'>
+            {pendingPlayer.position.join(', ')}
+          </span>
+          <span className='ml-auto text-sm opacity-75'>
+            select player to drop
+          </span>
+        </div>
+      )}
       <ul className='divide-cb-dusty-blue divide-y'>
         {visibleSlots.map((slot, slotIndex) => {
           const player = players.find(p => p.name === slot.player)
@@ -392,7 +404,7 @@ export function Roster({
                     <TrashIcon className='h-6 w-6' />
                   </button>
                 )}
-                {movingSlotIndex === null && !isEmpty && (
+                {!replacePlayer && movingSlotIndex === null && !isEmpty && (
                   <button
                     className='text-cb-yellow hover:text-cb-yellow/75 disabled:pointer-events-none disabled:opacity-25'
                     onClick={() => {
