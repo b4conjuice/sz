@@ -114,6 +114,11 @@ export function Roster({
   )
   const { players, draft } = team
   const playerNamesOnTeam = new Set(players.map(player => player.name))
+  const opponentPlayerNames = new Set(
+    (team.rosters ?? [])
+      .filter(roster => roster.isOpponent)
+      .flatMap(roster => roster.players)
+  )
   const slots = team.slots ?? DEFAULT_SLOTS
   const draftRosterSize = draft?.complete ? draft.players.length : null
   const sizedSlots =
@@ -139,7 +144,10 @@ export function Roster({
   ).length
   const isRosterFull = activePlayerCount >= teamRosterSize
   const addPlayer = (player: Player) => {
-    if (playerNamesOnTeam.has(player.name)) {
+    if (
+      playerNamesOnTeam.has(player.name) ||
+      opponentPlayerNames.has(player.name)
+    ) {
       return
     }
     if (isRosterFull) {
@@ -657,7 +665,9 @@ export function Roster({
               ...filteredPlayerList.map((player, index) => ({
                 id: `add-player-${index}`,
                 title: `add ${player.name} - ${player.position.join(', ')}`,
-                disabled: playerNamesOnTeam.has(player.name),
+                disabled:
+                  playerNamesOnTeam.has(player.name) ||
+                  opponentPlayerNames.has(player.name),
                 action: () => {
                   addPlayer(player)
                 },
