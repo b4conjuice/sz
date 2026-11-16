@@ -6,6 +6,7 @@ import CommandPalette from '@/components/command-palette'
 import ImportExportModal from '@/components/import-export-modal'
 import Menu from '@/components/menu'
 import Modal from '@/components/modal'
+import NewPlayerModal from '@/components/new-player-modal'
 import type { Player } from '@/lib/use-players'
 import { usePlayers } from '@/lib/use-players'
 import { useTeams } from '@/lib/use-teams'
@@ -21,7 +22,7 @@ export const Route = createFileRoute('/wl')({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const { players } = usePlayers()
+  const { players, savePlayer } = usePlayers()
   const { teams, addPlayerToTeam } = useTeams()
   const {
     watchlist,
@@ -31,6 +32,7 @@ function RouteComponent() {
   } = useWatchlist()
   const [isAddPlayerCommandPaletteOpen, setIsAddPlayerCommandPaletteOpen] =
     useState(false)
+  const [isAddNewPlayerModalOpen, setIsAddNewPlayerModalOpen] = useState(false)
   const [playerToAddToTeam, setPlayerToAddToTeam] = useState<Player | null>(
     null
   )
@@ -152,16 +154,34 @@ function RouteComponent() {
       <CommandPalette
         toggleIsOpenHotKey={'A'}
         placeholder='add player'
-        commands={players.map((player, index) => ({
-          id: `watchlist-player-${index}`,
-          title: `watch ${player.name} - ${player.position.join(', ')}`,
-          disabled: watchlistPlayerNames.has(player.name),
-          action: () => {
-            addPlayerToWatchlist(player)
+        commands={[
+          {
+            id: 'add-new-player',
+            title: 'create new player',
+            action: () => {
+              setIsAddNewPlayerModalOpen(true)
+            },
           },
-        }))}
+          ...players.map((player, index) => ({
+            id: `watchlist-player-${index}`,
+            title: `watch ${player.name} - ${player.position.join(', ')}`,
+            disabled: watchlistPlayerNames.has(player.name),
+            action: () => {
+              addPlayerToWatchlist(player)
+            },
+          })),
+        ]}
         isOpen={isAddPlayerCommandPaletteOpen}
         setIsOpen={setIsAddPlayerCommandPaletteOpen}
+      />
+      <NewPlayerModal
+        isOpen={isAddNewPlayerModalOpen}
+        setIsOpen={setIsAddNewPlayerModalOpen}
+        playerList={players}
+        onSubmit={player => {
+          savePlayer({ player })
+          addPlayerToWatchlist(player)
+        }}
       />
       {playerToAddToTeam && (
         <Modal
