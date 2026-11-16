@@ -76,17 +76,34 @@ export default function CommandPalette({
     })),
   ])
 
+  const disabledScorePenalty = 0.1
+  const rankCommand = (command: Command, score: number) =>
+    score + (command.disabled ? disabledScorePenalty : 0)
+
   const fuse = new Fuse(commands, {
     keys: ['id', 'title', { name: 'name', weight: 2 }],
+    includeScore: true,
   })
 
   const hasActiveFilters =
     filterGroups?.some(group => group.selected.length > 0) ?? false
-  const filteredCommands = !query
-    ? hasActiveFilters
-      ? commands
-      : []
-    : fuse.search(query.toLowerCase()).map(({ item }) => item)
+  const filteredCommands = (
+    !query
+      ? (hasActiveFilters ? commands : []).map(command => ({
+          command,
+          score: 0,
+        }))
+      : fuse.search(query.toLowerCase()).map(({ item, score }) => ({
+          command: item,
+          score: score ?? 0,
+        }))
+  )
+    .sort(
+      (first, second) =>
+        rankCommand(first.command, first.score) -
+        rankCommand(second.command, second.score)
+    )
+    .map(({ command }) => command)
   return (
     <>
       <Transition show={isOpen} as={Fragment} afterLeave={() => setQuery('')}>
