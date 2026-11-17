@@ -13,6 +13,7 @@ import CommandPalette from '@/components/command-palette'
 import Modal from '@/components/modal'
 import NewPlayerModal from '@/components/new-player-modal'
 import type { Player } from '@/lib/use-players'
+import { useWatchlist } from '@/lib/use-watchlist'
 import {
   DEFAULT_SLOTS,
   EMPTY_SLOT_PLAYER,
@@ -77,6 +78,9 @@ export function Roster({
   const [pendingPlayer, setPendingPlayer] = useState<Player | null>(null)
   const [selectedPositions, setSelectedPositions] = useState<string[]>([])
   const [selectedTeams, setSelectedTeams] = useState<string[]>([])
+  const [watchlistOnly, setWatchlistOnly] = useState(false)
+  const { watchlist } = useWatchlist()
+  const watchlistPlayerNames = new Set(watchlist.map(player => player.name))
   const positions = [
     ...new Set([
       'PG',
@@ -110,7 +114,8 @@ export function Roster({
           player.position.includes(position)
         )) &&
       (selectedTeams.length === 0 ||
-        selectedTeams.every(selectedTeam => player.team === selectedTeam))
+        selectedTeams.every(selectedTeam => player.team === selectedTeam)) &&
+      (!watchlistOnly || watchlistPlayerNames.has(player.name))
   )
   const { players, draft } = team
   const playerNamesOnTeam = new Set(players.map(player => player.name))
@@ -651,6 +656,14 @@ export function Roster({
                   setSelectedTeams(prev =>
                     prev.includes(playerTeam) ? [] : [playerTeam]
                   )
+                },
+              },
+              {
+                id: 'watchlist',
+                options: watchlist.length > 0 ? ['watchlist'] : [],
+                selected: watchlistOnly ? ['watchlist'] : [],
+                onToggle: () => {
+                  setWatchlistOnly(prev => !prev)
                 },
               },
             ]}
