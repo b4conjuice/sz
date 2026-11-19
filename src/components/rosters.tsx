@@ -1,16 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react'
-import { ChevronDownIcon, Cog6ToothIcon } from '@heroicons/react/20/solid'
+import { useCopyToClipboard, useLocalStorage } from '@uidotdev/usehooks'
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  Cog6ToothIcon,
+  DocumentDuplicateIcon,
+} from '@heroicons/react/20/solid'
 import classNames from 'classnames'
 
 import ImportExport from '@/components/import-export'
 import Modal from '@/components/modal'
 import { Roster } from '@/components/roster'
 import type { Player } from '@/lib/use-players'
+import { ROSTERS_SCRIPT } from '@/lib/scripts'
 import type { RosterTeam } from '@/lib/scripts'
 import { DEFAULT_SLOTS, fillSlotsWithPlayers } from '@/lib/use-teams'
 import type { Team } from '@/lib/use-teams'
@@ -68,6 +75,16 @@ export default function Rosters({
 }) {
   const [isRostersSettingsModalOpen, setIsRostersSettingsModalOpen] =
     useState(false)
+  const [savedScript] = useLocalStorage('sz-script-rosters', ROSTERS_SCRIPT)
+  const [, copyToClipboard] = useCopyToClipboard()
+  const [isCopied, setIsCopied] = useState(false)
+
+  useEffect(() => {
+    if (!isCopied) return
+    const timeout = setTimeout(() => setIsCopied(false), 1500)
+    return () => clearTimeout(timeout)
+  }, [isCopied])
+
   const rosters = [...(team.rosters ?? [])].sort(
     (a, b) => Number(a.isOpponent) - Number(b.isOpponent)
   )
@@ -123,6 +140,26 @@ export default function Rosters({
         isOpen={isRostersSettingsModalOpen}
         setIsOpen={setIsRostersSettingsModalOpen}
       >
+        <button
+          type='button'
+          title='copy rosters script'
+          className='text-cb-yellow hover:text-cb-yellow/75 flex gap-2'
+          onClick={async () => {
+            await copyToClipboard(savedScript || ROSTERS_SCRIPT)
+            setIsCopied(true)
+          }}
+        >
+          {isCopied ? (
+            <>
+              <CheckIcon className='h-6 w-6' /> copied
+            </>
+          ) : (
+            <>
+              <DocumentDuplicateIcon className='h-6 w-6' /> copy rosters script
+            </>
+          )}
+        </button>
+        <hr className='border-cb-white/25' />
         <ImportExport
           object={team.rosters}
           setObject={(newRosters: RosterTeam[] | undefined) => {
