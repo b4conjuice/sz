@@ -119,11 +119,24 @@ export function Roster({
   )
   const { players, draft } = team
   const playerNamesOnTeam = new Set(players.map(player => player.name))
-  const opponentPlayerNames = new Set(
-    (team.rosters ?? [])
-      .filter(roster => roster.isOpponent)
-      .flatMap(roster => roster.players)
+  const opponentRosters = (team.rosters ?? []).filter(
+    roster => roster.isOpponent
   )
+  const opponentPlayerNames = new Set(
+    opponentRosters.flatMap(roster => roster.players)
+  )
+  const getAddPlayerDisabledReason = (player: Player) => {
+    if (playerNamesOnTeam.has(player.name)) {
+      return 'already on roster'
+    }
+    const opponentRoster = opponentRosters.find(roster =>
+      roster.players.includes(player.name)
+    )
+    if (opponentRoster) {
+      return `on ${opponentRoster.name}'s roster`
+    }
+    return undefined
+  }
   const slots = team.slots ?? DEFAULT_SLOTS
   const draftRosterSize = draft?.complete ? draft.players.length : null
   const sizedSlots =
@@ -675,16 +688,18 @@ export function Roster({
                   setIsAddNewPlayerModalOpen(true)
                 },
               },
-              ...filteredPlayerList.map((player, index) => ({
-                id: `add-player-${index}`,
-                title: `add ${player.name} - ${player.position.join(', ')}`,
-                disabled:
-                  playerNamesOnTeam.has(player.name) ||
-                  opponentPlayerNames.has(player.name),
-                action: () => {
-                  addPlayer(player)
-                },
-              })),
+              ...filteredPlayerList.map((player, index) => {
+                const disabledReason = getAddPlayerDisabledReason(player)
+                return {
+                  id: `add-player-${index}`,
+                  title: `add ${player.name} - ${player.position.join(', ')}`,
+                  subtitle: disabledReason,
+                  disabled: disabledReason !== undefined,
+                  action: () => {
+                    addPlayer(player)
+                  },
+                }
+              }),
             ]}
             isOpen={isAddPlayerCommandPaletteOpen}
             setIsOpen={setIsAddPlayerCommandPaletteOpen}
