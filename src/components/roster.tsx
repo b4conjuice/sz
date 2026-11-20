@@ -50,6 +50,7 @@ export function Roster({
   deletePlayerByIndex,
   savePlayer,
   saveTeam,
+  onRemovePlayer,
   readOnly = false,
 }: {
   team: TeamType
@@ -67,6 +68,7 @@ export function Roster({
   }) => void
   savePlayer: (args: { player: Player; index?: number }) => void
   saveTeam: (team: TeamType) => void
+  onRemovePlayer?: (playerName: string) => void
   readOnly?: boolean
 }) {
   const [isRosterSettingsModalOpen, setIsRosterSettingsModalOpen] =
@@ -411,6 +413,18 @@ export function Roster({
                   </>
                 )}
               </span>
+              {onRemovePlayer && !isEmpty && (
+                <button
+                  className='text-red-700 hover:text-red-700/75 disabled:pointer-events-none disabled:opacity-25'
+                  type='button'
+                  title='remove player'
+                  onClick={() => {
+                    onRemovePlayer(slot.player)
+                  }}
+                >
+                  <TrashIcon className='h-6 w-6' />
+                </button>
+              )}
               {!readOnly && (
                 <span className='flex items-center space-x-6'>
                   {canMoveHere && (
